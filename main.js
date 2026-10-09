@@ -51,6 +51,16 @@
     });
   }
 
+  /* Group page: members without a photo get their initials instead. */
+  document.querySelectorAll('.member').forEach(function (el) {
+    if (el.querySelector('.member-photo')) return;
+    var name = (el.querySelector('h3') || {}).textContent || '';
+    var initials = name.trim().split(/\s+/).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+    var div = document.createElement('div');
+    div.className = 'member-initials'; div.setAttribute('aria-hidden', 'true'); div.textContent = initials;
+    el.insertBefore(div, el.firstChild);
+  });
+
   /* Scroll to an element and briefly highlight it. */
   function reveal(el) {
     if (!el) return;
@@ -152,6 +162,10 @@
       link(p[0] === 'Email' ? 's:contact' : 'me', 'x:' + p[0], p[0] === 'Email' ? 40 : 95);
     });
 
+    // The research group: a cloud linked only to the centre photo; opens its own page.
+    node('s:group', 'Research group', 'section', { cloud: true, page: 'group.html', tip: 'Meet the research group' });
+    link('me', 's:group', 85);
+
     /* --- Neighbourhoods for hover highlighting --- */
     var byId = {};
     nodes.forEach(function (n) { byId[n.id] = n; n.neighbors = new Set([n]); n.links = new Set(); });
@@ -175,6 +189,7 @@
     photo.onload = function () { redraw(); };
 
     var MIN_ZOOM = 0.3, MAX_ZOOM = 6;
+    var CLOUD = new Path2D('M7 18.5h10.5a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.6 9.1 4.75 4.75 0 0 0 7 18.5z');
     var RADIUS = { me: 22, section: 8, theme: 6.5, paper: 4.2, place: 4.2, profile: 4.6 };
 
     function colorOf(n, p) {
@@ -205,8 +220,16 @@
         var c = colorOf(n, p);
         ctx.save();
         if (isDark() && (n === hoverNode || n.kind === 'section')) { ctx.shadowColor = c; ctx.shadowBlur = n === hoverNode ? 16 : 8; }
-        ctx.beginPath(); ctx.arc(n.x, n.y, n === hoverNode ? r * 1.25 : r, 0, Math.PI * 2);
-        if (n.kind === 'profile') {
+        if (n.cloud) {
+          // cloud glyph: the same path as the group page's icon (24x24 viewBox)
+          var sc = (n === hoverNode ? 1.2 : 1) * r * 2.9 / 19.3;
+          ctx.translate(n.x, n.y); ctx.scale(sc, sc); ctx.translate(-12.1, -13.3);
+          ctx.fillStyle = c; ctx.fill(CLOUD);
+        } else {
+          ctx.beginPath(); ctx.arc(n.x, n.y, n === hoverNode ? r * 1.25 : r, 0, Math.PI * 2);
+        }
+        if (n.cloud) { /* drawn above */ }
+        else if (n.kind === 'profile') {
           ctx.fillStyle = isDark() ? '#1a1f1d' : '#ffffff'; ctx.fill();
           ctx.lineWidth = 1.6; ctx.strokeStyle = c; ctx.stroke();
         } else {
@@ -516,6 +539,7 @@
 
     function openNode(n) {
       if (n.kind === 'me') { releaseAll(); return; }
+      if (n.page) { window.location.href = n.page; return; }
       if (n.href) {
         if (n.href.indexOf('mailto:') === 0) window.location.href = n.href;
         else window.open(n.href, '_blank', 'noopener');

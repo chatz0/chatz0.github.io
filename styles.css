@@ -364,3 +364,42 @@ html:not(.js) .graph-panel, html:not(.js) .graph-controls, html:not(.js) .graph-
   100% { box-shadow: 0 0 0 3px transparent; }
 }
 @media (prefers-reduced-motion: reduce) { .flash, .theme.flash { animation-duration: 0.01s; } }
+
+/* ---------- Group page ---------- */
+.group-page .site-header .brand { opacity: 1; }
+.group-hero { padding-top: 40px; }
+.back-link {
+  display: inline-flex; align-items: center; gap: 4px; margin-bottom: 1.5rem;
+  color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 500;
+}
+.back-link:hover { color: var(--accent); }
+.back-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.group-title { display: flex; align-items: center; gap: 14px; margin-bottom: 1rem; }
+.group-title h1 { font-size: clamp(2rem, 1.5rem + 2vw, 2.8rem); letter-spacing: -0.01em; }
+.group-cloud { width: 52px; height: 52px; flex: none; fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.4; stroke-linejoin: round; }
+
+.member-grid { list-style: none; padding: 0; margin: 1.25rem 0 0; display: grid; gap: 16px; }
+@media (min-width: 640px) { .member-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 960px) { .member-grid { grid-template-columns: repeat(3, 1fr); } }
+/* sections with no members yet are hidden */
+.member-section:not(:has(.member)) { display: none; }
+
+.member {
+  display: flex; gap: 16px; align-items: flex-start;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px;
+}
+.member h3 { font-size: 1.1rem; }
+.member-photo, .member-initials {
+  width: 72px; height: 72px; flex: none; border-radius: 50%; object-fit: cover;
+  background: var(--accent-soft); border: 1px solid var(--line);
+}
+.member-initials {
+  display: grid; place-items: center;
+  font: 600 1.4rem/1 var(--serif); color: var(--accent);
+}
+.member-role { margin-top: 2px; font-size: 0.9rem; font-weight: 500; }
+.member-topic { margin-top: 4px; font-size: 0.9rem; color: var(--muted); }
+.member-links { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.875rem; }
+.member-pi { max-width: 640px; margin-top: 1.25rem; }
+.member-pi .member-photo { width: 96px; height: 96px; }

@@ -11,6 +11,7 @@ Open `index.html` in a browser to preview it locally.
 | `styles.css` | Layout, light/dark colour tokens (top of the file) |
 | `main.js` | Theme toggle, active-section highlighting, the interactive graph in the hero |
 | `vendor/force-graph.min.js` | [force-graph](https://github.com/vasturiano/force-graph) 1.50.1 (MIT), the library behind the graph; vendored so the site needs no build or CDN. One local patch: the hover-canvas throttle is 40ms instead of 800ms, so nodes stay grabbable while moving |
+| `group.html` | Research group page (opened from the cloud node in the graph) |
 | `assets/me.png` | Portrait |
 | `404.html` | Not-found page |
 | `.nojekyll` | Tells GitHub Pages to serve files as-is |
@@ -20,6 +21,7 @@ Open `index.html` in a browser to preview it locally.
 - **Add a publication:** copy one `<li class="pub" …>…</li>` block in `index.html` and edit it. Your name goes in `<b>…</b>`.
   The graph picks it up automatically: `data-short` is its label in the graph and `data-themes` lists the research themes it links to
   (`learning`, `ledgers`, `incentives`, `mobile`, matching the `data-theme-id` of the cards in the Research section).
+- **Add a group member:** in `group.html`, copy the template from the `MEMBERS` comment into the right list (postdocs, PhD students, research assistants, alumni). Put photos in `assets/people/`; without a photo, initials are shown. Empty sections stay hidden.
 - **After changing CSS or JS:** bump the `?v=` number on the `styles.css`, `main.js` and `vendor/…` links in `index.html`, so browsers don't keep a cached old copy (GitHub Pages caches for 10 minutes).
 - **Change colours:** edit the variables in `:root` (light) and the two dark blocks at the top of `styles.css`.
 
