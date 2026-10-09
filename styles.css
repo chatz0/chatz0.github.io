@@ -375,6 +375,7 @@ html:not(.js) .graph-panel, html:not(.js) .graph-controls, html:not(.js) .graph-
 .back-link:hover { color: var(--accent); }
 .back-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .group-title { display: flex; align-items: center; gap: 14px; margin-bottom: 1rem; }
+.group-subtitle { margin-top: 2px; color: var(--muted); font-size: 1rem; font-weight: 500; }
 .group-title h1 { font-size: clamp(2rem, 1.5rem + 2vw, 2.8rem); letter-spacing: -0.01em; }
 .group-cloud { width: 52px; height: 52px; flex: none; fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.4; stroke-linejoin: round; }
 

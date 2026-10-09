@@ -162,8 +162,8 @@
       link(p[0] === 'Email' ? 's:contact' : 'me', 'x:' + p[0], p[0] === 'Email' ? 40 : 95);
     });
 
-    // The research group: a cloud linked only to the centre photo; opens its own page.
-    node('s:group', 'Research group', 'section', { cloud: true, page: 'group.html', tip: 'Meet the research group' });
+    // The research group (DAIS Lab): a cloud linked only to the centre photo; opens its own page.
+    node('s:group', 'DAIS Lab', 'section', { cloud: true, page: 'group.html', tip: 'DAIS Lab: meet the research group' });
     link('me', 's:group', 85);
 
     /* --- Neighbourhoods for hover highlighting --- */
