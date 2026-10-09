@@ -134,24 +134,22 @@ a:hover { text-decoration-thickness: 2px; }
 }
 
 /* ---------- Hero ---------- */
-.hero { position: relative; overflow: hidden; padding: 72px 0 64px; border-bottom: 1px solid var(--line); }
-.hero-network {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  pointer-events: none;
-  /* fade the network out behind the text column */
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, transparent 35%, #000 85%);
-          mask-image: linear-gradient(to right, transparent 0%, transparent 35%, #000 85%);
+.wrap-wide { max-width: 1200px; }
+.hero { position: relative; padding: 56px 0 48px; border-bottom: 1px solid var(--line); }
+.hero-inner { display: grid; gap: 32px; align-items: center; }
+@media (min-width: 980px) {
+  .hero-inner { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; }
 }
-.hero-inner { position: relative; display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: start; }
 
 .portrait {
-  width: 132px; height: 132px; border-radius: 50%; object-fit: cover;
+  display: block; width: 116px; height: 116px; border-radius: 50%; object-fit: cover;
   border: 3px solid var(--surface);
   box-shadow: 0 0 0 1px var(--line), 0 6px 20px rgba(0,0,0,.08);
   background: var(--surface);
+  margin-bottom: 24px;
 }
 
-.hero-text { max-width: 620px; }
+.hero-text { max-width: 600px; }
 .hero h1 { font-size: clamp(2rem, 1.4rem + 2.4vw, 2.9rem); letter-spacing: -0.01em; }
 .role { margin-top: 0.5rem; font-weight: 500; font-size: 1.05rem; }
 .role span { color: var(--muted); font-weight: 400; }
@@ -168,14 +166,59 @@ a:hover { text-decoration-thickness: 2px; }
 .links a:hover { border-color: var(--accent); color: var(--accent); }
 .links svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
+/* Interactive graph */
+.graph-panel {
+  position: relative; height: 520px; min-width: 0;
+  border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 50%, var(--accent-soft) 0%, transparent 70%),
+    var(--surface);
+}
+.graph { position: absolute; inset: 0; }
+.graph canvas { display: block; }
+.graph-panel.no-graph { display: none; }
+
+.graph-controls {
+  position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 6px;
+}
+.graph-controls button {
+  width: 32px; height: 32px; display: grid; place-items: center; padding: 0;
+  background: var(--bg); color: var(--muted);
+  border: 1px solid var(--line); border-radius: 8px;
+  font: 500 18px/1 var(--sans); cursor: pointer;
+}
+.graph-controls button:hover { color: var(--text); border-color: var(--muted); }
+.graph-controls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.graph-hint {
+  position: absolute; left: 14px; bottom: 10px; margin: 0;
+  font-size: 0.75rem; color: var(--muted); pointer-events: none;
+}
+
+/* force-graph's hover tooltip */
+.graph .float-tooltip-kap, .graph .graph-tooltip {
+  background: var(--text) !important; color: var(--bg) !important;
+  font: 500 0.8rem/1.35 var(--sans) !important;
+  padding: 6px 9px !important; border-radius: 6px !important; max-width: 260px; white-space: normal !important;
+}
+
+/* With the graph showing on wide screens, the photo lives in the graph's centre node. */
+@media (min-width: 980px) {
+  .has-graph .hero-main .portrait { display: none; }
+}
+
 @media (max-width: 640px) {
-  .hero { padding: 40px 0 44px; }
-  .hero-inner { grid-template-columns: 1fr; gap: 20px; }
-  .portrait { width: 96px; height: 96px; }
-  .hero-network {
-    -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 45%);
-            mask-image: linear-gradient(to bottom, #000 0%, transparent 45%);
-  }
+  .hero { padding: 36px 0 36px; }
+  .portrait { width: 92px; height: 92px; margin-bottom: 18px; }
+  .graph-panel { height: 340px; }
+  /* let vertical swipes over the graph scroll the page */
+  .graph canvas { touch-action: pan-y !important; }
+}
+
+/* Dark mode: bring back the original glow */
+:root[data-theme="dark"] .portrait { border-color: var(--accent); box-shadow: 0 0 14px rgba(95, 209, 179, .55); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .portrait { border-color: var(--accent); box-shadow: 0 0 14px rgba(95, 209, 179, .55); }
 }
 
 /* ---------- Sections ---------- */
@@ -260,7 +303,20 @@ a:hover { text-decoration-thickness: 2px; }
 .site-footer { padding: 28px 0 40px; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); }
 
 @media print {
-  .site-header, .hero-network, .theme-toggle, .skip-link { display: none !important; }
+  .site-header, .graph-panel, .theme-toggle, .skip-link { display: none !important; }
   body { background: #fff; color: #000; }
   .section, .hero { padding: 24px 0; }
 }
+
+/* Briefly highlight an item revealed from the graph */
+@keyframes flash {
+  0%, 30% { background-color: var(--accent-soft); box-shadow: 0 0 0 8px var(--accent-soft); }
+  100% { background-color: transparent; box-shadow: 0 0 0 8px transparent; }
+}
+.flash { animation: flash 1.8s ease-out; border-radius: 8px; }
+.theme.flash { animation-name: flash-card; }
+@keyframes flash-card {
+  0%, 30% { box-shadow: 0 0 0 3px var(--accent); }
+  100% { box-shadow: 0 0 0 3px transparent; }
+}
+@media (prefers-reduced-motion: reduce) { .flash, .theme.flash { animation-duration: 0.01s; } }
