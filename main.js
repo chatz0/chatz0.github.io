@@ -301,21 +301,10 @@
       .linkDirectionalParticleSpeed(0.008)
       .linkDirectionalParticleColor(function () { return pal().accent; })
       .onNodeHover(function (n) { setHover(n); })
-      .onNodeClick(function (n) {
-        if (n.kind === 'me') { releaseAll(); return; }
-        if (n.href) {
-          if (n.href.indexOf('mailto:') === 0) window.location.href = n.href;
-          else window.open(n.href, '_blank', 'noopener');
-          return;
-        }
-        reveal(n.el || document.querySelector(n.target));
-      })
+      .onNodeClick(function (n) { openNode(n); })
       .onBackgroundClick(function () { setHover(null); })
-      // Dropped nodes stay where you put them (click the photo to undo).
-      .onNodeDragEnd(function (n) {
-        if (n.kind === 'me') return;
-        n.fx = n.x; n.fy = n.y; n.pinned = true;
-      })
+      // Node dragging is handled by our own pointer code below, not the library's.
+      .enableNodeDrag(false)
       .minZoom(MIN_ZOOM)
       .maxZoom(MAX_ZOOM)
       .cooldownTime(3000)
@@ -437,11 +426,110 @@
 
     container._graph = g; // handy for debugging from the console
 
+    /* --- Node dragging ---
+       Done with plain geometry rather than force-graph's colour-picking hit
+       canvas, which proved unreliable in some browsers (a press on a node
+       could start a pan of the whole graph instead). A press that lands on a
+       node never reaches force-graph, so it can't turn into a pan. */
+    var measureCtx = document.createElement('canvas').getContext('2d');
+
+    function nodeAt(clientX, clientY) {
+      var rect = container.getBoundingClientRect();
+      var px = clientX - rect.left, py = clientY - rect.top;
+      var k = g.zoom(), best = null, bestD = Infinity, labelHit = null;
+      for (var i = nodes.length - 1; i >= 0; i--) {
+        var n = nodes[i];
+        if (n.x == null) continue;
+        var s = g.graph2ScreenCoords(n.x, n.y);
+        var r = RADIUS[n.kind] * k;
+        var d = Math.hypot(px - s.x, py - s.y);
+        if (d <= Math.max(r + 5, 13) && d < bestD) { best = n; bestD = d; }
+        if (!labelHit && n.kind !== 'me' &&
+            (n.kind === 'section' || n.kind === 'theme' || k > 2.2)) {
+          var base = n.kind === 'section' ? 12.5 : n.kind === 'theme' ? 11 : 10;
+          var fs = base * k / Math.min(k, 1.6);                     // label size on screen
+          measureCtx.font = '600 ' + fs + 'px Inter, system-ui, sans-serif';
+          var w = measureCtx.measureText(n.label).width + 8;
+          var top = s.y + r, bottom = top + 4 + fs * 1.35;
+          if (px >= s.x - w / 2 && px <= s.x + w / 2 && py >= top && py <= bottom) labelHit = n;
+        }
+      }
+      return best || labelHit;
+    }
+
+    var drag = null;
+    var canvasEl = function () { return container.querySelector('canvas'); };
+
+    container.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0 || !e.isPrimary) return;
+      var n = nodeAt(e.clientX, e.clientY);
+      if (!n) return;                          // background: let force-graph pan
+      e.stopImmediatePropagation();
+      if (e.pointerType === 'mouse') e.preventDefault(); // no mousedown -> no pan
+      interacted();
+      var rect = container.getBoundingClientRect();
+      var p = g.screen2GraphCoords(e.clientX - rect.left, e.clientY - rect.top);
+      drag = { node: n, id: e.pointerId, x0: e.clientX, y0: e.clientY,
+               dx: n.x - p.x, dy: n.y - p.y, moved: false };
+      try { container.setPointerCapture(e.pointerId); } catch (err) {}
+    }, { capture: true });
+
+    // Belt and braces: while a node drag is active, the library gets no
+    // mouse/touch presses at all.
+    ['mousedown', 'touchstart'].forEach(function (type) {
+      container.addEventListener(type, function (e) { if (drag) e.stopImmediatePropagation(); }, { capture: true });
+    });
+
+    container.addEventListener('pointermove', function (e) {
+      if (!drag) {
+        if (e.pointerType === 'mouse') {
+          var c = canvasEl();
+          if (c) c.style.cursor = nodeAt(e.clientX, e.clientY) ? 'grab' : '';
+        }
+        return;
+      }
+      if (e.pointerId !== drag.id) return;
+      e.stopImmediatePropagation();
+      if (!drag.moved && Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 4) return;
+      drag.moved = true;
+      var c2 = canvasEl(); if (c2) c2.style.cursor = 'grabbing';
+      var rect = container.getBoundingClientRect();
+      var p = g.screen2GraphCoords(e.clientX - rect.left, e.clientY - rect.top);
+      var n = drag.node;
+      n.fx = n.x = p.x + drag.dx;
+      n.fy = n.y = p.y + drag.dy;
+      n.vx = n.vy = 0;
+      redraw();
+    }, { capture: true });
+
+    function endDrag(e, cancelled) {
+      if (!drag || e.pointerId !== drag.id) return;
+      e.stopImmediatePropagation();
+      var d = drag; drag = null;
+      try { container.releasePointerCapture(e.pointerId); } catch (err) {}
+      var c = canvasEl(); if (c) c.style.cursor = 'grab';
+      if (d.moved) { if (d.node.kind !== 'me') d.node.pinned = true; }  // stays where dropped
+      else if (!cancelled) openNode(d.node);                            // a press without movement is a click
+    }
+    container.addEventListener('pointerup', function (e) { endDrag(e, false); }, { capture: true });
+    container.addEventListener('pointercancel', function (e) { endDrag(e, true); }, { capture: true });
+
+    function openNode(n) {
+      if (n.kind === 'me') { releaseAll(); return; }
+      if (n.href) {
+        if (n.href.indexOf('mailto:') === 0) window.location.href = n.href;
+        else window.open(n.href, '_blank', 'noopener');
+        return;
+      }
+      reveal(n.el || document.querySelector(n.target));
+    }
+
     function releaseAll() {
       var any = false;
       nodes.forEach(function (n) {
         if (n.pinned) { n.fx = undefined; n.fy = undefined; n.pinned = false; any = true; }
       });
+      if (me.fx !== 0 || me.fy !== 0) { me.fx = 0; me.fy = 0; any = true; }
       if (any) { fitted = false; touched = false; g.d3ReheatSimulation(); }
       else fit(500);
     }
