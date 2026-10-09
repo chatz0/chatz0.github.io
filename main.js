@@ -86,7 +86,7 @@
     }
     function link(a, b, dist) { links.push({ source: a, target: b, dist: dist }); }
 
-    var me = node('me', 'Dimitris Chatzopoulos', 'me', { tip: 'That’s me. Click to re-centre' });
+    var me = node('me', 'Dimitris Chatzopoulos', 'me', { tip: 'That’s me. Click to tidy up and re-centre' });
     me.fx = 0; me.fy = 0; // keep the centre node pinned
 
     var sections = [
@@ -162,7 +162,6 @@
       hoverNode = n || null;
       hlNodes = n ? n.neighbors : new Set();
       hlLinks = n ? n.links : new Set();
-      container.style.cursor = n ? 'pointer' : '';
     }
 
     /* --- Drawing --- */
@@ -259,9 +258,18 @@
       }
     }
 
-    function paintArea(n, color, ctx) {
+    // Hit area for hover and drag: never smaller than ~11px on screen, and it
+    // includes the label, which is what people naturally reach for.
+    function paintArea(n, color, ctx, scale) {
+      var r = RADIUS[n.kind];
       ctx.fillStyle = color;
-      ctx.beginPath(); ctx.arc(n.x, n.y, RADIUS[n.kind] + 4, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(n.x, n.y, Math.max(r + 3, 11 / scale), 0, Math.PI * 2); ctx.fill();
+      if (n.kind === 'section' || n.kind === 'theme' || (n.kind !== 'me' && scale > 1.6)) {
+        var size = (n.kind === 'section' ? 12.5 : n.kind === 'theme' ? 11 : 10) / Math.min(scale, 1.6);
+        ctx.font = '600 ' + size + 'px Inter, system-ui, sans-serif';
+        var w = ctx.measureText(n.label).width + 6 / scale;
+        ctx.fillRect(n.x - w / 2, n.y + r, w, 3 / scale + size * 1.35);
+      }
     }
 
     /* --- Create the graph --- */
@@ -283,7 +291,7 @@
       .linkDirectionalParticleColor(function () { return pal().accent; })
       .onNodeHover(function (n) { setHover(n); })
       .onNodeClick(function (n) {
-        if (n.kind === 'me') { fit(500); return; }
+        if (n.kind === 'me') { releaseAll(); return; }
         if (n.href) {
           if (n.href.indexOf('mailto:') === 0) window.location.href = n.href;
           else window.open(n.href, '_blank', 'noopener');
@@ -292,6 +300,11 @@
         reveal(n.el || document.querySelector(n.target));
       })
       .onBackgroundClick(function () { setHover(null); })
+      // Dropped nodes stay where you put them (click the photo to undo).
+      .onNodeDragEnd(function (n) {
+        if (n.kind === 'me') return;
+        n.fx = n.x; n.fy = n.y; n.pinned = true;
+      })
       .cooldownTime(6000)
       .d3AlphaDecay(0.03)
       .d3VelocityDecay(0.3);
@@ -371,6 +384,15 @@
     }
 
     container._graph = g; // handy for debugging from the console
+
+    function releaseAll() {
+      var any = false;
+      nodes.forEach(function (n) {
+        if (n.pinned) { n.fx = undefined; n.fy = undefined; n.pinned = false; any = true; }
+      });
+      if (any) { fitted = false; g.d3ReheatSimulation(); }
+      else fit(500);
+    }
 
     function redraw() {
       // Re-setting an accessor makes force-graph repaint with the current palette.
