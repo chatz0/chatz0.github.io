@@ -20,6 +20,7 @@ Open `index.html` in a browser to preview it locally.
 - **Add a publication:** copy one `<li class="pub" …>…</li>` block in `index.html` and edit it. Your name goes in `<b>…</b>`.
   The graph picks it up automatically: `data-short` is its label in the graph and `data-themes` lists the research themes it links to
   (`learning`, `ledgers`, `incentives`, `mobile`, matching the `data-theme-id` of the cards in the Research section).
+- **After changing CSS or JS:** bump the `?v=` number on the `styles.css`, `main.js` and `vendor/…` links in `index.html`, so browsers don't keep a cached old copy (GitHub Pages caches for 10 minutes).
 - **Change colours:** edit the variables in `:root` (light) and the two dark blocks at the top of `styles.css`.
 
 ## Publishing
