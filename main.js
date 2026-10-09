@@ -25,6 +25,10 @@
   /* ---------- Header state & active section ---------- */
   var header = document.querySelector('.site-header');
   function onScroll() { header.classList.toggle('scrolled', window.scrollY > 40); }
+  // The landing screen fills the viewport below the sticky header.
+  function measureHeader() { root.style.setProperty('--header-h', header.offsetHeight + 'px'); }
+  measureHeader();
+  window.addEventListener('resize', measureHeader);
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
@@ -61,9 +65,10 @@
      from the DOM, so adding a paper to the list also adds it to the graph. */
   var graph = (function () {
     var panel = document.querySelector('.graph-panel');
+    var card = document.querySelector('.intro-card');
     var container = document.getElementById('graph');
     if (!container || typeof window.ForceGraph !== 'function') {
-      if (panel) panel.classList.add('no-graph');
+      root.classList.add('no-graph');
       return { redraw: function () {} };
     }
     root.classList.add('has-graph');
@@ -169,6 +174,7 @@
     photo.src = 'assets/me.png';
     photo.onload = function () { redraw(); };
 
+    var MIN_ZOOM = 0.3, MAX_ZOOM = 6;
     var RADIUS = { me: 22, section: 8, theme: 6.5, paper: 4.2, place: 4.2, profile: 4.6 };
 
     function colorOf(n, p) {
@@ -211,7 +217,7 @@
 
       // Labels: always for the main structure; for leaves when zoomed in or highlighted.
       var showLabel = n.kind === 'me' || n.kind === 'section' || n.kind === 'theme' ||
-                      scale > 1.6 || (hoverNode && hlNodes.has(n));
+                      scale > 2.2 || (hoverNode && hlNodes.has(n));
       if (showLabel && n.kind !== 'me') {
         var size = (n.kind === 'section' ? 12.5 : n.kind === 'theme' ? 11 : 10) / Math.min(scale, 1.6);
         ctx.font = (n.kind === 'section' ? '600 ' : '500 ') + size + 'px Inter, system-ui, sans-serif';
@@ -261,15 +267,20 @@
     // Hit area for hover and drag: never smaller than ~11px on screen, and it
     // includes the label, which is what people naturally reach for.
     function paintArea(n, color, ctx, scale) {
+      // Circle and label box go into ONE path and are filled once: force-graph
+      // identifies nodes by exact pixel colour, and two overlapping fills leave
+      // an anti-aliased seam whose colour is off by one, i.e. matches no node.
       var r = RADIUS[n.kind];
       ctx.fillStyle = color;
-      ctx.beginPath(); ctx.arc(n.x, n.y, Math.max(r + 3, 11 / scale), 0, Math.PI * 2); ctx.fill();
-      if (n.kind === 'section' || n.kind === 'theme' || (n.kind !== 'me' && scale > 1.6)) {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, Math.max(r + 3, 11 / scale), 0, Math.PI * 2);
+      if (n.kind === 'section' || n.kind === 'theme' || (n.kind !== 'me' && scale > 2.2)) {
         var size = (n.kind === 'section' ? 12.5 : n.kind === 'theme' ? 11 : 10) / Math.min(scale, 1.6);
         ctx.font = '600 ' + size + 'px Inter, system-ui, sans-serif';
         var w = ctx.measureText(n.label).width + 6 / scale;
-        ctx.fillRect(n.x - w / 2, n.y + r, w, 3 / scale + size * 1.35);
+        ctx.rect(n.x - w / 2, n.y + r, w, 3 / scale + size * 1.35);
       }
+      ctx.fill();
     }
 
     /* --- Create the graph --- */
@@ -305,7 +316,9 @@
         if (n.kind === 'me') return;
         n.fx = n.x; n.fy = n.y; n.pinned = true;
       })
-      .cooldownTime(6000)
+      .minZoom(MIN_ZOOM)
+      .maxZoom(MAX_ZOOM)
+      .cooldownTime(3000)
       .d3AlphaDecay(0.03)
       .d3VelocityDecay(0.3);
 
@@ -315,14 +328,44 @@
     // Keep nodes (and the labels under them) from piling on top of each other.
     g.d3Force('collide', collide);
 
+    // Pre-compute most of the layout before the first frame, so nodes barely
+    // drift (a moving node is harder to grab); reduced motion gets a still layout.
     if (reduceMotion.matches) g.warmupTicks(200).cooldownTicks(0);
+    else g.warmupTicks(160);
+
+    // The graph fills the screen, so a plain scroll must scroll the page, not
+    // zoom the graph. Zoom needs Ctrl/Cmd + scroll (trackpad pinch sends ctrlKey).
+    // We handle that zoom ourselves: the library treats every Ctrl+wheel as a
+    // trackpad pinch and amplifies it, which makes a mouse wheel jump wildly.
+    container.addEventListener('wheel', function (e) {
+      e.stopPropagation();
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault(); // also stops the browser's own page zoom
+      interacted();
+      var delta = e.deltaY * (e.deltaMode === 1 ? 20 : 1);
+      delta = Math.max(-20, Math.min(20, delta)); // one mouse notch ~ 1.3x; pinches stay smooth
+      var k0 = g.zoom();
+      var k1 = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, k0 * Math.pow(2, -delta * 0.02)));
+      if (k1 === k0) return;
+      // keep the point under the cursor fixed
+      var r = container.getBoundingClientRect();
+      var pt = g.screen2GraphCoords(e.clientX - r.left, e.clientY - r.top);
+      var c = g.centerAt();
+      g.zoom(k1);
+      g.centerAt(pt.x - (pt.x - c.x) * (k0 / k1), pt.y - (pt.y - c.y) * (k0 / k1));
+    }, { capture: true, passive: false });
 
     // On touch screens, keep page scrolling natural: no pinch/drag-to-pan on the canvas.
     if (coarsePointer.matches) g.enableZoomInteraction(false).enablePanInteraction(false);
 
-    var fitted = false;
+    // Once the layout settles, fit it to the screen, unless the visitor has
+    // already started interacting: moving the view under their cursor would
+    // make them miss the node they're reaching for.
+    var fitted = false, touched = false;
+    function interacted() { touched = true; }
+    container.addEventListener('pointerdown', interacted);
     g.onEngineStop(function () {
-      if (!fitted) { fitted = true; fit(reduceMotion.matches ? 0 : 600); }
+      if (!fitted) { fitted = true; if (!touched) fit(reduceMotion.matches ? 0 : 400); }
     });
     // Fit early too, so the first frames already look composed.
     setTimeout(function () { if (!fitted) fit(0); }, 350);
@@ -331,7 +374,15 @@
     // keeps clear of the hint line at the bottom and the zoom buttons on the right.
     function fit(ms) {
       var W = container.clientWidth, H = container.clientHeight;
-      var padX = W < 600 ? 26 : 20, padTop = 20, padBottom = 34, padRight = 52;
+      var padX = 24, padTop = 24, padBottom = 56, padRight = 72;
+      // Keep the graph clear of the floating name card: beside it on wide
+      // screens, below it on narrow ones.
+      if (card) {
+        var cr = card.getBoundingClientRect(), pr = container.getBoundingClientRect();
+        if (cr.width < W * 0.45) padX = cr.right - pr.left + 24;
+        else padTop = cr.bottom - pr.top + 16;
+      }
+      if (W < 640) { padX = Math.min(padX, 20); padRight = 56; }
       var k = g.zoom() || 1, box;
       for (var iter = 0; iter < 3; iter++) {
         box = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
@@ -347,7 +398,7 @@
           box.x0 = Math.min(box.x0, n.x - hw); box.x1 = Math.max(box.x1, n.x + hw);
           box.y0 = Math.min(box.y0, n.y - r);  box.y1 = Math.max(box.y1, n.y + below);
         });
-        k = Math.min((W - padX - padRight) / (box.x1 - box.x0), (H - padTop - padBottom) / (box.y1 - box.y0), 2.4);
+        k = Math.min((W - padX - padRight) / (box.x1 - box.x0), (H - padTop - padBottom) / (box.y1 - box.y0), 1.9);
       }
       // centre of the box, shifted so the free area (not the whole panel) is centred
       var cx = (box.x0 + box.x1) / 2 + (padRight - padX) / 2 / k;
@@ -368,11 +419,12 @@
       }).observe(container);
     }
 
-    panel.querySelectorAll('[data-zoom]').forEach(function (btn) {
+    document.querySelectorAll('[data-zoom]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var mode = btn.getAttribute('data-zoom');
+        interacted();
         if (mode === 'fit') fit(400);
-        else g.zoom(g.zoom() * (mode === 'in' ? 1.4 : 1 / 1.4), 300);
+        else g.zoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, g.zoom() * (mode === 'in' ? 1.4 : 1 / 1.4))), 300);
       });
     });
 
@@ -390,7 +442,7 @@
       nodes.forEach(function (n) {
         if (n.pinned) { n.fx = undefined; n.fy = undefined; n.pinned = false; any = true; }
       });
-      if (any) { fitted = false; g.d3ReheatSimulation(); }
+      if (any) { fitted = false; touched = false; g.d3ReheatSimulation(); }
       else fit(500);
     }
 
