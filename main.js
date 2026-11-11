@@ -191,9 +191,40 @@
      Built from data.js (research themes, courses) and the selected papers in
      papers/. Nodes open the matching page. */
   var graph = { redraw: function () {} };
-  loadSelectedPapers().then(startGraph, function () { startGraph([]); });
+  /* Which DAIS Lab sections have people in them (same grouping as members.js).
+     Opened straight from disk the member files can't be read: none are counted. */
+  function loadLabSections() {
+    if (!document.getElementById('graph')) return Promise.resolve({});
+    var SECTION = { 'Postdoctoral researcher': 'postdocs', 'PhD student': 'phd', 'Research assistant': 'ra',
+                    'MSc student': 'ra', 'Intern': 'ra', 'Visiting researcher': 'visitors' };
+    function getJSON(url) {
+      return fetch(url, { cache: 'no-cache' }).then(function (r) {
+        if (!r.ok) throw new Error(url + ': HTTP ' + r.status);
+        return r.json();
+      });
+    }
+    return getJSON('members/index.json')
+      .then(function (files) {
+        return Promise.all(files.map(function (f) {
+          return getJSON('members/' + encodeURIComponent(f)).catch(function () { return null; });
+        }));
+      })
+      .then(function (ms) {
+        var counts = {};
+        ms.forEach(function (x) {
+          if (!x || !x.name || x.show_on_website === false) return;
+          var key = x.status === 'alumni' ? 'alumni' : SECTION[x.role];
+          if (key) counts[key] = (counts[key] || 0) + 1;
+        });
+        return counts;
+      })
+      .catch(function (err) { console.warn(err); return {}; });
+  }
 
-  function startGraph(selectedPapers) { graph = (function () {
+  Promise.all([loadSelectedPapers(), loadLabSections()])
+    .then(function (r) { startGraph(r[0], r[1]); }, function () { startGraph([], {}); });
+
+  function startGraph(selectedPapers, labCounts) { graph = (function () {
     var panel = document.querySelector('.graph-panel');
     var card = document.querySelector('.intro-card');
     var container = document.getElementById('graph');
@@ -329,8 +360,23 @@
     link('s:contact', 'x:Email', 40);
 
     // The research group (DAIS Lab): a cloud linked only to the centre photo; opens its own page.
-    node('s:group', 'DAIS Lab', 'section', { cloud: true, page: 'group.html', tip: 'DAIS Lab: meet the research group' });
+    // It folds out to the lab page's sections (only those with people in them).
+    node('s:group', 'DAIS Lab', 'section', { cloud: true, toggle: true, tip: 'DAIS Lab: the research group (click to show or hide)' });
     link('me', 's:group', 85);
+    var lab = labCounts || {};
+    [['pi', 'PI', 'Principal investigator', 1],
+     ['postdocs', 'Postdocs', 'Postdoctoral researchers', lab.postdocs],
+     ['phd', 'PhD students', 'PhD students', lab.phd],
+     ['ra', 'Research assistants', 'Research assistants & MSc students', lab.ra],
+     ['visitors', 'Visitors', 'Visiting researchers', lab.visitors],
+     ['alumni', 'Alumni', 'Alumni', lab.alumni],
+     ['join', 'Join', 'Join the group', 1]
+    ].forEach(function (s) {
+      if (!s[3]) return;
+      var count = s[0] === 'pi' || s[0] === 'join' ? '' : ' (' + s[3] + ')';
+      node('g:' + s[0], s[1], 'theme', { under: 's:group', page: 'group.html#' + s[0], tip: s[2] + count });
+      link('s:group', 'g:' + s[0], 48);
+    });
 
     /* --- Neighbourhoods for hover highlighting --- */
     var byId = {};
@@ -432,6 +478,10 @@
           var sc = (n === hoverNode ? 1.2 : 1) * r * 2.9 / 19.3;
           ctx.translate(n.x, n.y); ctx.scale(sc, sc); ctx.translate(-12.1, -13.3);
           ctx.fillStyle = c; ctx.fill(CLOUD);
+          if (n.toggle) {   // back to graph coordinates for the fold marks
+            ctx.restore(); ctx.save();
+            drawToggleMark(n, ctx, r * 1.45, c);
+          }
         } else {
           ctx.beginPath(); ctx.arc(n.x, n.y, n === hoverNode ? r * 1.25 : r, 0, Math.PI * 2);
         }
