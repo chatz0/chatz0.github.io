@@ -170,7 +170,7 @@
 
     var sections = [
       ['research', 'Research'], ['publications', 'Publications'], ['background', 'Background'],
-      ['teaching', 'Teaching'], ['contact', 'Contact']
+      ['teaching', 'Teaching'], ['service', 'Service'], ['contact', 'Contact']
     ];
     // Research, Publications and Background fold out (+/-): Research to its themes
     // and papers, Publications to the paper list, Scholar and DBLP, Background to
@@ -178,7 +178,8 @@
     var FOLDS = {
       research: 'Interests and projects (click to show or hide)',
       publications: 'Full list, selected papers, Google Scholar and DBLP (click to show or hide)',
-      background: 'Universities and research visits (click to show or hide)'
+      background: 'Universities and research visits (click to show or hide)',
+      service: 'Research and academic service (click to show or hide)'
     };
     sections.forEach(function (s) {
       node('s:' + s[0], s[1], 'section', FOLDS[s[0]]
@@ -186,6 +187,16 @@
         : { target: '#' + s[0], tip: 'Go to ' + s[1] });
       link('me', 's:' + s[0], 70);
     });
+
+    // Service opens Research (programme committees, reviewing: details to come)
+    // and Academic (roles at UCD).
+    node('sv:research', 'Research', 'theme', { under: 's:service', tip: 'Research service: programme committees, reviewing (details to come)' });
+    link('s:service', 'sv:research', 45);
+    node('sv:academic', 'Academic', 'theme', { toggle: true, under: 's:service', tip: 'Academic service (click to show or hide)' });
+    link('s:service', 'sv:academic', 45);
+    node('sv:director', 'Programme Director', 'place', { under: 'sv:academic', target: '#teaching',
+      tip: 'Programme Director, Higher Diploma in Computer Science, UCD' });
+    link('sv:academic', 'sv:director', 40);
 
     // Research opens Interests (the research themes, each with its papers) and
     // Projects (by funding source; details still to come).
