@@ -8,7 +8,7 @@
 window.PHOTOS = [
   {
     "file": "dais-group.jpg",
-    "caption": "The DAIS Lab",
+    "caption": "DAIS Lab, 2025",
     "alt": "Ten members of the lab standing in a row in a university building",
     "page": "group",
     "width": 1200,
