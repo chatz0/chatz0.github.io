@@ -11,7 +11,9 @@ Open `index.html` in a browser to preview it locally.
 | `styles.css` | Layout, light/dark colour tokens (top of the file) |
 | `main.js` | Theme toggle, active-section highlighting, the interactive graph in the hero |
 | `vendor/force-graph.min.js` | [force-graph](https://github.com/vasturiano/force-graph) 1.50.1 (MIT), the library behind the graph; vendored so the site needs no build or CDN. One local patch: the hover-canvas throttle is 40ms instead of 800ms, so nodes stay grabbable while moving |
-| `group.html`, `group.js` | DAIS Lab (research group) page, opened from the cloud node in the graph; `group.js` builds the member cards from `members/` |
+| `group.html` | DAIS Lab (research group) page, opened from the cloud node in the graph |
+| `member.html` | One lab member's page, e.g. `member.html?id=joana-tirana` (the id is their file name in `members/`) |
+| `members.js` | Builds the lab page's cards and each member's page from the files in `members/` |
 | `members/` | One JSON file per lab member, plus `_template.json` for new members (see `members/README.md`) |
 | `assets/me.png` | Portrait |
 | `404.html` | Not-found page |
@@ -22,8 +24,8 @@ Open `index.html` in a browser to preview it locally.
 - **Add a publication:** copy one `<li class="pub" …>…</li>` block in `index.html` and edit it. Your name goes in `<b>…</b>`.
   The graph picks it up automatically: `data-short` is its label in the graph and `data-themes` lists the research themes it links to
   (`learning`, `ledgers`, `incentives`, `mobile`, matching the `data-theme-id` of the cards in the Research section).
-- **Add a lab member:** add their JSON file to `members/` and list it in `members/index.json` (details in `members/README.md`). The DAIS Lab page builds its cards from these files; photos go in `assets/people/`. To preview the lab page locally, run `python3 -m http.server` and open http://localhost:8000/group.html (opened straight from disk, it can't load the files).
-- **After changing CSS or JS:** bump the `?v=` number on the `styles.css`, `main.js`, `group.js` and `vendor/…` links in `index.html` and `group.html`, so browsers don't keep a cached old copy (GitHub Pages caches for 10 minutes).
+- **Add a lab member:** add their JSON file to `members/` and list it in `members/index.json` (details in `members/README.md`). The DAIS Lab page builds its cards from these files; photos go in `assets/people/`. Each member automatically gets their own page, linked from their card. To preview the lab pages locally, run `python3 -m http.server` and open http://localhost:8000/group.html (opened straight from disk, they can't load the files).
+- **After changing CSS or JS:** bump the `?v=` number on the `styles.css`, `main.js`, `members.js` and `vendor/…` links in `index.html`, `group.html` and `member.html`, so browsers don't keep a cached old copy (GitHub Pages caches for 10 minutes).
 - **Change colours:** edit the variables in `:root` (light) and the two dark blocks at the top of `styles.css`.
 
 ## Publishing

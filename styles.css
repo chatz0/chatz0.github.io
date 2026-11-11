@@ -411,16 +411,50 @@ html:not(.js) .graph-panel, html:not(.js) .graph-controls, html:not(.js) .graph-
 .members-message.members-error { color: var(--text); background: var(--accent-soft); border-radius: var(--radius); padding: 14px 16px; }
 .member-info { min-width: 0; flex: 1; }
 .member-now { margin-top: 4px; font-size: 0.875rem; color: var(--muted); font-style: italic; }
-.member-details { margin-top: 10px; font-size: 0.875rem; }
-.member-details summary {
-  cursor: pointer; color: var(--accent); font-weight: 500; width: fit-content;
-  list-style: none; display: inline-flex; align-items: center; gap: 4px;
+
+/* Clickable member cards */
+.member-linked { cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.member-linked:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(0, 0, 0, .06); }
+.member-name { color: inherit; text-decoration: none; }
+.member-name:hover, .member-linked:hover .member-name { color: var(--accent); }
+.member-name:focus-visible { outline-offset: 2px; }
+
+/* ---------- Member profile page ---------- */
+.member-profile-section { padding-top: 40px; }
+.profile-head { display: flex; gap: 28px; align-items: center; margin-top: 0.5rem; }
+.profile-head .member-photo, .profile-head .member-initials { width: 140px; height: 140px; }
+.profile-head .member-initials { font-size: 2.6rem; }
+.profile-info h1 { font-size: clamp(1.9rem, 1.5rem + 1.6vw, 2.6rem); letter-spacing: -0.01em; }
+.profile-preferred { color: var(--muted); font-size: 0.95rem; margin-top: 2px; }
+.profile-role { margin-top: 6px; font-size: 1rem; }
+.profile-topic { margin-top: 6px; color: var(--muted); font-size: 1.05rem; }
+.profile-links { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+.profile-links a {
+  padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--surface); color: var(--text); text-decoration: none; font-size: 0.875rem; font-weight: 500;
 }
-.member-details summary::-webkit-details-marker { display: none; }
-.member-details summary::after { content: "+"; font-weight: 600; }
-.member-details[open] summary::after { content: "\2212"; }
-.member-more { margin-top: 8px; color: var(--muted); }
-.member-more p { margin: 0 0 8px; }
-.member-more h4 { margin: 10px 0 4px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text); }
-.member-more ul { margin: 0; padding-left: 1.1em; }
-.member-more li { margin: 2px 0; }
+.profile-links a:hover { border-color: var(--accent); color: var(--accent); }
+
+.profile-body { margin-top: 40px; display: grid; gap: 32px; max-width: 760px; }
+.profile-block h2 { font-size: 1.25rem; margin-bottom: 0.6rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--line); }
+.profile-bio { font-size: 1.05rem; }
+.profile-pubs { margin: 0; padding-left: 1.3em; }
+.profile-pubs li { margin: 0 0 10px; }
+.pub-title-link { font-family: var(--serif); font-weight: 600; }
+.profile-pub-meta { display: block; color: var(--muted); font-size: 0.9rem; font-style: italic; }
+.profile-list { list-style: none; padding: 0; margin: 0; }
+.profile-list li { padding: 8px 0; border-top: 1px solid var(--line); }
+.profile-list li:first-child { border-top: 0; padding-top: 0; }
+.profile-list-main { display: block; font-weight: 600; }
+.profile-list-sub { display: block; color: var(--muted); font-size: 0.925rem; }
+.profile-facts { display: grid; grid-template-columns: max-content 1fr; gap: 8px 20px; margin: 0; }
+.profile-facts dt { color: var(--muted); font-size: 0.9rem; padding-top: 1px; }
+.profile-facts dd { margin: 0; }
+.profile-missing-title { font-size: 1.8rem; margin: 0.5rem 0 0.75rem; }
+
+@media (max-width: 560px) {
+  .profile-head { flex-direction: column; align-items: flex-start; gap: 18px; }
+  .profile-head .member-photo, .profile-head .member-initials { width: 112px; height: 112px; }
+  .profile-facts { grid-template-columns: 1fr; gap: 2px; }
+  .profile-facts dd { margin-bottom: 10px; }
+}

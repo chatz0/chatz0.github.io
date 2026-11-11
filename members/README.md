@@ -1,7 +1,9 @@
 # DAIS Lab members
 
 One JSON file per lab member: `firstname-lastname.json` (lowercase, hyphens, no accents).
-The DAIS Lab page (`group.html`) builds its member cards from these files.
+The DAIS Lab page (`group.html`) builds its member cards from these files, and every listed member
+gets their own page at `member.html?id=firstname-lastname` (the file name without `.json`), linked from their card.
+If you rename a file, their page address changes too.
 
 | File | Purpose |
 | --- | --- |
@@ -46,7 +48,7 @@ When someone leaves, set `"status": "alumni"`, fill in `end_year` and, if they'r
 | `thesis_title` | Once known. |
 | `selected_publications` | Up to three: `title` (exactly as published), `venue`, `year`, `url`. |
 | `now_at` | Alumni only: where they went next. |
-| `show_on_website` | `false` keeps the file without listing the person publicly. |
+| `show_on_website` | `false` keeps the file without listing the person publicly: no card, and their page shows "not found". |
 
 `$schema` and `_how_to_fill` are for editors and for the person filling in the file; the website ignores them.
 
