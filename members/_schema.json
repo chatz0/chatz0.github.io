@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DAIS Lab member",
+  "description": "One member of the Decentralised AI Systems (DAIS) Lab. One file per person, named firstname-lastname.json.",
+  "type": "object",
+  "required": ["name", "role", "status"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "_how_to_fill": { "type": "string", "description": "Instructions for the person filling in the file. Ignored by the website." },
+
+    "name": { "type": "string", "minLength": 1, "description": "Full name as it should appear on the website, e.g. \"Joana Tirana\"." },
+    "preferred_name": { "type": "string", "description": "Optional short or preferred name, e.g. \"Yuxuan\"." },
+    "role": {
+      "type": "string",
+      "enum": ["PhD student", "Postdoctoral researcher", "Research assistant", "MSc student", "Visiting researcher", "Intern"],
+      "description": "Role in the lab. For alumni, the role they held."
+    },
+    "status": { "type": "string", "enum": ["current", "alumni"], "description": "\"current\" while in the lab, \"alumni\" after leaving." },
+    "start_year": { "type": ["integer", "null"], "minimum": 2000, "maximum": 2100, "description": "Year they joined the lab." },
+    "end_year": { "type": ["integer", "null"], "minimum": 2000, "maximum": 2100, "description": "Year they left; null while current." },
+
+    "research_topic": { "type": "string", "maxLength": 80, "description": "One short line, shown on their card, e.g. \"Split and federated learning at the edge\"." },
+    "bio": { "type": "string", "maxLength": 600, "description": "Two or three sentences about their research, written in the third person." },
+
+    "email": { "type": "string", "description": "Contact email, e.g. a UCD address. Leave empty to hide." },
+    "photo": { "type": "string", "description": "File name of their photo in assets/people/, e.g. \"joana-tirana.jpg\". Leave empty to show initials." },
+
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "website": { "type": "string" },
+        "google_scholar": { "type": "string" },
+        "dblp": { "type": "string" },
+        "orcid": { "type": "string" },
+        "github": { "type": "string" },
+        "linkedin": { "type": "string" }
+      }
+    },
+
+    "education": {
+      "type": "array",
+      "description": "Degrees, most recent first.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "degree": { "type": "string", "description": "e.g. \"MSc\", \"BSc\", \"Diploma\"." },
+          "field": { "type": "string" },
+          "institution": { "type": "string" },
+          "year": { "type": ["integer", "null"] }
+        }
+      }
+    },
+
+    "supervisors": { "type": "array", "items": { "type": "string" }, "description": "Supervisor and any co-supervisors." },
+    "funding": { "type": "string", "description": "Scholarship or grant, if any, e.g. a research centre or fellowship." },
+    "thesis_title": { "type": "string", "description": "PhD or MSc thesis title, once known." },
+
+    "selected_publications": {
+      "type": "array",
+      "description": "Up to three papers to highlight. Keep titles exactly as published.",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string" },
+          "venue": { "type": "string" },
+          "year": { "type": ["integer", "null"] },
+          "url": { "type": "string" }
+        }
+      }
+    },
+
+    "now_at": { "type": "string", "description": "Alumni only: where they went next, e.g. \"Research Scientist, Company X\"." },
+    "show_on_website": { "type": "boolean", "description": "Set to false to keep the file without listing the person publicly." }
+  }
+}

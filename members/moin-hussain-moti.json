@@ -1,0 +1,45 @@
+{
+  "$schema": "./_schema.json",
+  "_how_to_fill": "Fill in what you can and leave the rest empty (\"\") or null. Keep the quotes and commas as they are. Send the file back to Dimitris with your photo attached (square, at least 300x300 px). Please write in British English, but keep paper titles exactly as published.",
+  "name": "Moin Hussain Moti",
+  "preferred_name": "",
+  "role": "Research assistant",
+  "status": "current",
+  "start_year": null,
+  "end_year": null,
+  "research_topic": "",
+  "bio": "",
+  "email": "",
+  "photo": "",
+  "links": {
+    "website": "",
+    "google_scholar": "",
+    "dblp": "",
+    "orcid": "",
+    "github": "",
+    "linkedin": ""
+  },
+  "education": [
+    {
+      "degree": "",
+      "field": "",
+      "institution": "",
+      "year": null
+    }
+  ],
+  "supervisors": [
+    "Dimitris Chatzopoulos"
+  ],
+  "funding": "",
+  "thesis_title": "",
+  "selected_publications": [
+    {
+      "title": "",
+      "venue": "",
+      "year": null,
+      "url": ""
+    }
+  ],
+  "now_at": "",
+  "show_on_website": true
+}

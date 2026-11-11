@@ -12,6 +12,7 @@ Open `index.html` in a browser to preview it locally.
 | `main.js` | Theme toggle, active-section highlighting, the interactive graph in the hero |
 | `vendor/force-graph.min.js` | [force-graph](https://github.com/vasturiano/force-graph) 1.50.1 (MIT), the library behind the graph; vendored so the site needs no build or CDN. One local patch: the hover-canvas throttle is 40ms instead of 800ms, so nodes stay grabbable while moving |
 | `group.html` | DAIS Lab (research group) page (opened from the cloud node in the graph) |
+| `members/` | One JSON file per lab member, plus `_template.json` for new members (see `members/README.md`) |
 | `assets/me.png` | Portrait |
 | `404.html` | Not-found page |
 | `.nojekyll` | Tells GitHub Pages to serve files as-is |
