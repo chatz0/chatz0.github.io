@@ -14,7 +14,7 @@
   <meta name="theme-color" content="#f7f6f2" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#121614" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f6b5c'/%3E%3Ctext x='16' y='22' font-family='Courier New,monospace' font-weight='bold' font-size='17' fill='%23fff' text-anchor='middle'%3EDC%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css?v=31">
+  <link rel="stylesheet" href="styles.css?v=32">
   <script>
     // Apply a saved theme before first paint to avoid a flash.
     document.documentElement.classList.add('js');
@@ -51,12 +51,15 @@
   <header class="site-header">
     <div class="wrap wrap-wide header-inner">
       <a class="brand" href="#top">Dimitris Chatzopoulos</a>
-      <nav class="site-nav" aria-label="Sections">
-        <a href="#research">Research</a>
-        <a href="#publications">Papers</a>
-        <a href="#background">Background</a>
-        <a href="#teaching">Teaching</a>
-        <a href="#contact">Contact</a>
+      <nav class="site-nav" aria-label="Site">
+        <a href="index.html">Home</a>
+        <a href="research.html">Research</a>
+        <a href="publications.html">Publications</a>
+        <a href="background.html">Background</a>
+        <a href="teaching.html">Teaching</a>
+        <a href="service.html">Service</a>
+        <a href="group.html">DAIS Lab</a>
+        <a href="contact.html">Contact</a>
       </nav>
       <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
         <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
@@ -122,138 +125,6 @@
         </ul>
       </div>
     </section>
-
-    <section class="section" id="research" aria-labelledby="research-h">
-      <div class="wrap">
-        <h2 id="research-h">Research</h2>
-        <p class="section-intro">My work sits where distributed systems, machine learning and applied cryptography meet. I study how to split computation and trust across many parties, and how to give each of them a reason to take part honestly.</p>
-        <div class="themes">
-          <article class="theme" data-theme-id="learning">
-            <h3>Distributed &amp; split learning</h3>
-            <p>Training models across resource-constrained clients and edge helpers: scheduling and workflow optimisation for parallel and multi-hop split learning, and decentralised federated learning.</p>
-          </article>
-          <article class="theme" data-theme-id="ledgers">
-            <h3>Distributed ledgers &amp; auditing</h3>
-            <p>Ledgers that run on mobile devices, and cryptographic protocols that keep transactions consistent and private across independent organisations, for example in financial auditing.</p>
-          </article>
-          <article class="theme" data-theme-id="incentives">
-            <h3>Incentives &amp; reputation</h3>
-            <p>Mechanism design for device-to-device ecosystems and crowdsourcing: rewarding contributors, building reputation without a central authority, and verifying work anonymously.</p>
-          </article>
-          <article class="theme" data-theme-id="mobile">
-            <h3>Mobile &amp; edge computing</h3>
-            <p>Offloading computation between phones, cloudlets and the cloud, and the systems behind mobile augmented reality.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="publications" aria-labelledby="pubs-h">
-      <div class="wrap">
-        <div class="section-head">
-          <h2 id="pubs-h">Selected publications</h2>
-          <p class="section-aside"><a href="publications.html">Full list</a> &middot; <a href="https://scholar.google.com/citations?user=vXz1bl4AAAAJ&amp;hl=en" rel="noopener">Google&nbsp;Scholar</a> &middot; <a href="https://dblp.org/pid/135/6249.html" rel="noopener">DBLP</a></p>
-        </div>
-        <!-- Built by main.js from the files in papers/ marked "selected": true. See papers/README.md. -->
-        <ol class="pubs" id="selected-pubs"></ol>
-        <p class="members-message pubs-message" id="pubs-message" hidden></p>
-      </div>
-    </section>
-
-    <section class="section" id="background" aria-labelledby="bg-h">
-      <div class="wrap two-col">
-        <div>
-          <h2 id="bg-h">Background</h2>
-          <ol class="timeline">
-            <li>
-              <span class="when">2021 to now</span>
-              <p class="what">Assistant Professor &amp; Ad Astra Fellow</p>
-              <p class="where">School of Computer Science, University College Dublin</p>
-            </li>
-            <li>
-              <span class="when">Before 2021</span>
-              <p class="what">Research Assistant Professor</p>
-              <p class="where">Department of Computer Science and Engineering, HKUST</p>
-            </li>
-            <li>
-              <span class="when">PhD</span>
-              <p class="what">Computer Science and Engineering</p>
-              <p class="where">Hong Kong University of Science and Technology</p>
-              <p class="note">Thesis: <i>Design and Analysis of Decentralized Incentive and Reputation Mechanisms for Device-to-Device Ecosystems</i></p>
-            </li>
-            <li>
-              <span class="when">Diploma &amp; MSc</span>
-              <p class="what">Computer Engineering and Communications</p>
-              <p class="where">University of Thessaly, Greece</p>
-            </li>
-          </ol>
-        </div>
-        <div>
-          <h3 class="sub-h">Research visits</h3>
-          <ul class="plain">
-            <li><b>EPFL</b>, Lausanne <span class="muted">2014</span></li>
-            <li><b>Tsinghua University</b>, Beijing <span class="muted">2016</span></li>
-            <li><b>University of Cambridge</b> <span class="muted">2016</span></li>
-          </ul>
-          <h3 class="sub-h">Recognition &amp; affiliations</h3>
-          <ul class="plain">
-            <li>UCD Ad Astra Fellowship</li>
-            <li>Funded Investigator, Insight SFI Research Centre for Data Analytics</li>
-            <li>Young researcher, 5th Heidelberg Laureate Forum <span class="muted">2017</span></li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="teaching" aria-labelledby="teach-h">
-      <div class="wrap two-col">
-        <div>
-          <h2 id="teach-h">Teaching</h2>
-          <ul class="plain courses">
-            <li class="course" data-short="Cloud Computing (UG)">
-              <a class="course-title" href="https://hub.ucd.ie/usis/!W_HU_MENU.P_PUBLISH?p_tag=MODULE&amp;MODULE=COMP30520" rel="noopener">Cloud Computing</a>
-              <span class="course-meta">COMP30520 &middot; Undergraduate &middot; 5 credits</span>
-            </li>
-            <li class="course" data-short="Blockchain">
-              <a class="course-title" href="https://hub.ucd.ie/usis/!W_HU_MENU.P_PUBLISH?p_tag=MODULE&amp;MODULE=COMP41770" rel="noopener">Blockchain &amp; Decentralisation</a>
-              <span class="course-meta">COMP41770 &middot; Postgraduate &middot; 5 credits</span>
-            </li>
-            <li class="course" data-short="Cloud Computing (MSc)">
-              <a class="course-title" href="https://hub.ucd.ie/usis/!W_HU_MENU.P_PUBLISH?p_tag=MODULE&amp;MODULE=COMP47780" rel="noopener">Cloud Computing</a>
-              <span class="course-meta">COMP47780 &middot; Postgraduate (MSc) &middot; 10 credits</span>
-            </li>
-          </ul>
-          <h3 class="sub-h courses-past-h">Previously taught</h3>
-          <ul class="plain courses">
-            <li class="course" data-short="Python OOP" data-past>
-              <a class="course-title" href="https://hub.ucd.ie/usis/!W_HU_MENU.P_PUBLISH?p_tag=MODULE&amp;MODULE=COMP20270" rel="noopener">Python OOP</a>
-              <span class="course-meta">COMP20270 &middot; MSc (Conversion) &amp; Higher Diploma &middot; 5 credits</span>
-            </li>
-            <li class="course" data-short="Web Development" data-past>
-              <a class="course-title" href="https://hub.ucd.ie/usis/!W_HU_MENU.P_PUBLISH?p_tag=MODULE&amp;MODULE=COMP30860" rel="noopener">Web Development</a>
-              <span class="course-meta">COMP30860 &middot; Undergraduate &middot; 5 credits</span>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h3 class="sub-h sub-h-top">Service</h3>
-          <ul class="plain">
-            <li>Programme Director, Higher Diploma in Computer Science, UCD</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="section contact" id="contact" aria-labelledby="contact-h">
-      <div class="wrap">
-        <h2 id="contact-h">Contact</h2>
-        <p class="section-intro">If you're a prospective PhD student or collaborator interested in decentralised systems or distributed learning, email me with a short note on what you'd like to work on.</p>
-        <address class="contact-card">
-          <span class="contact-email">first_name.last_name@ucd.ie</span>
-          <span>School of Computer Science<br>University College Dublin<br>Belfield, Dublin 4, Ireland</span>
-        </address>
-      </div>
-    </section>
   </main>
 
   <footer class="site-footer">
@@ -262,7 +133,8 @@
     </div>
   </footer>
 
-  <script src="vendor/force-graph.min.js?v=31" defer></script>
-  <script src="main.js?v=31" defer></script>
+  <script src="vendor/force-graph.min.js?v=32" defer></script>
+  <script src="data.js?v=32" defer></script>
+  <script src="main.js?v=32" defer></script>
 </body>
 </html>

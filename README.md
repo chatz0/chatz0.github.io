@@ -3,30 +3,33 @@
 Personal academic homepage of Dimitris Chatzopoulos, served at <https://chatz0.github.io/>.
 
 Plain HTML, CSS and JavaScript: no build step, no dependencies, no server needed.
-Open `index.html` in a browser to preview it locally.
+Open `index.html` in a browser to preview it locally; pages that read `papers/` or `members/` (publications, DAIS Lab, and the graph's paper nodes) need `python3 -m http.server` instead.
 
 | File | What it holds |
 | --- | --- |
-| `index.html` | Homepage content: bio, research themes, background, teaching, contact (the selected papers come from `papers/`) |
+| `index.html` | Homepage: the interactive graph and a short About |
+| `research.html`, `teaching.html` | Research interests and modules, built from `data.js` |
+| `background.html`, `service.html`, `contact.html` | Positions and education, service roles, contact details (written directly in each file) |
+| `publications.html`, `papers.js` | The publication list (All / Selected / by type), built from the files in `papers/` |
+| `group.html`, `member.html`, `members.js` | DAIS Lab page and each member's page, built from the files in `members/` |
+| `data.js` | Research themes and courses, shared by the graph and the Research and Teaching pages |
+| `main.js` | Theme toggle, top nav, the homepage graph, and rendering of `data.js` content |
 | `styles.css` | Layout, light/dark colour tokens (top of the file) |
-| `main.js` | Theme toggle, active-section highlighting, the interactive graph in the hero |
+| `papers/`, `members/` | One JSON file per paper / lab member, each with a template and README |
 | `vendor/force-graph.min.js` | [force-graph](https://github.com/vasturiano/force-graph) 1.50.1 (MIT), the library behind the graph; vendored so the site needs no build or CDN. One local patch: the hover-canvas throttle is 40ms instead of 800ms, so nodes stay grabbable while moving |
-| `group.html` | DAIS Lab (research group) page, opened from the cloud node in the graph |
-| `member.html` | One lab member's page, e.g. `member.html?id=joana-tirana` (the id is their file name in `members/`) |
-| `members.js` | Builds the lab page's cards and each member's page from the files in `members/` |
-| `publications.html`, `papers.js` | The full publication list, built from the files in `papers/` |
-| `papers/` | One JSON file per paper, a template, and a BibTeX importer (see `papers/README.md`) |
-| `members/` | One JSON file per lab member, plus `_template.json` for new members (see `members/README.md`) |
 | `assets/me.png` | Portrait |
 | `404.html` | Not-found page |
 | `.nojekyll` | Tells GitHub Pages to serve files as-is |
 
+Every page has the same top nav. To add a page, copy `service.html`, and add its link to the `<nav class="site-nav">` block in every `.html` file.
+
 ## Editing
 
-- **Add a publication:** add a file to `papers/` (see `papers/README.md`); with `"selected": true` it also appears in the homepage's *Selected publications* and its graph, linked to the research themes in its `themes` field. The homepage's paper list needs a local server to preview (`python3 -m http.server`).
+- **Add a publication:** add a file to `papers/` (see `papers/README.md`). With `"selected": true` it also appears under the Selected filter and in the homepage graph, linked to the research themes in its `themes` field.
+- **Change research themes or courses:** edit `data.js`; the graph and the Research and Teaching pages both update.
 - **Add a lab member:** add their JSON file to `members/` and list it in `members/index.json` (details in `members/README.md`). The DAIS Lab page builds its cards from these files; photos go in `assets/people/`. Each member automatically gets their own page, linked from their card. To preview the lab pages locally, run `python3 -m http.server` and open http://localhost:8000/group.html (opened straight from disk, they can't load the files).
 - **Add papers to the full list:** see `papers/README.md`; `papers/import_bibtex.py` turns a BibTeX export from DBLP or Scholar into paper files.
-- **After changing CSS or JS:** bump the `?v=` number on the `styles.css`, `main.js`, `members.js`, `papers.js` and `vendor/…` links in `index.html`, `group.html`, `member.html` and `publications.html`, so browsers don't keep a cached old copy (GitHub Pages caches for 10 minutes).
+- **After changing CSS or JS:** bump the `?v=` number on the `styles.css`, `data.js`, `main.js`, `members.js`, `papers.js` and `vendor/…` links in every `.html` file, so browsers don't keep a cached old copy (GitHub Pages caches for 10 minutes).
 - **Change colours:** edit the variables in `:root` (light) and the two dark blocks at the top of `styles.css`.
 
 ## Publishing

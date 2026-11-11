@@ -60,6 +60,8 @@
   function entry(p, memberPages) {
     var li = el('li', 'paper');
     li.dataset.type = str(p.type);
+    if (p.selected === true) li.dataset.selected = 'true';
+    if (p._slug) li.id = 'paper-' + p._slug;
 
     var url = mainUrl(p);
     var h = el('h3', 'paper-title');
@@ -109,7 +111,7 @@
       }
     });
 
-    var ps = papers.map(function (r) { return r.data; })
+    var ps = papers.map(function (r) { if (r.data) r.data._slug = r.file.replace(/\.json$/i, '').replace(/[^\w-]/g, ''); return r.data; })
       .filter(function (p) { return p && str(p.title) && p.year; })
       .sort(function (a, b) { return b.year - a.year || str(a.title).localeCompare(str(b.title)); });
     if (!ps.length) { message.textContent = 'No publications are listed yet.'; return; }
@@ -128,29 +130,50 @@
     message.textContent = ps.length + (ps.length === 1 ? ' paper' : ' papers');
     message.classList.add('papers-count');
     buildFilters(ps);
+
+    // publications.html#paper-<file name>: scroll to that paper and highlight it.
+    var target = /^#paper-[\w-]+$/.test(location.hash) ? document.getElementById(location.hash.slice(1)) : null;
+    if (target) {
+      target.scrollIntoView({ block: 'center' });
+      target.classList.add('flash');
+    }
   }
 
-  // Type filter buttons (only for types that occur).
+  // Filter buttons: All, Selected, then each type that occurs.
+  // publications.html?show=selected starts on Selected.
   function buildFilters(ps) {
     if (!filters) return;
     var present = Object.keys(TYPE_LABELS).filter(function (t) {
       return ps.some(function (p) { return str(p.type) === t; });
     });
-    if (present.length < 2) return;
-    function button(type, label) {
+    var anySelected = ps.some(function (p) { return p.selected === true; });
+    if (present.length < 2 && !anySelected) return;
+    function button(key, label) {
       var b = el('button', 'paper-filter', label);
       b.type = 'button';
-      b.setAttribute('aria-pressed', type === '' ? 'true' : 'false');
-      b.addEventListener('click', function () {
-        filters.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
-        list.querySelectorAll('.paper').forEach(function (li) { li.hidden = type !== '' && li.dataset.type !== type; });
-        list.querySelectorAll('.paper-year').forEach(function (s) { s.hidden = !s.querySelector('.paper:not([hidden])'); });
-      });
+      b.dataset.filter = key;
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', function () { apply(key); });
       return b;
     }
+    function apply(key) {
+      filters.querySelectorAll('button').forEach(function (x) {
+        x.setAttribute('aria-pressed', x.dataset.filter === key ? 'true' : 'false');
+      });
+      var shown = 0;
+      list.querySelectorAll('.paper').forEach(function (li) {
+        li.hidden = key === 'selected' ? li.dataset.selected !== 'true' : (key !== '' && li.dataset.type !== key);
+        if (!li.hidden) shown++;
+      });
+      list.querySelectorAll('.paper-year').forEach(function (s) { s.hidden = !s.querySelector('.paper:not([hidden])'); });
+      message.textContent = shown + (shown === 1 ? ' paper' : ' papers') + (key === 'selected' ? ', selected' : '');
+    }
     filters.appendChild(button('', 'All'));
-    present.forEach(function (t) { filters.appendChild(button(t, TYPE_LABELS[t])); });
+    if (anySelected) filters.appendChild(button('selected', 'Selected'));
+    if (present.length > 1) present.forEach(function (t) { filters.appendChild(button(t, TYPE_LABELS[t])); });
     filters.hidden = false;
+    var start = new URLSearchParams(location.search).get('show') === 'selected' && anySelected && !location.hash ? 'selected' : '';
+    apply(start);
   }
 
   function showError() {

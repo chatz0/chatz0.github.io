@@ -1,8 +1,8 @@
 # Publications
 
 One JSON file per paper: `year-firstauthor-firstword.json`, e.g. `2024-tirana-workflow.json`.
-The full publication list (`publications.html`) and the homepage's *Selected publications*
-(and the papers in its graph) are built from these files.
+The publication list (`publications.html`, including its Selected filter) and the paper nodes in
+the homepage graph are built from these files.
 
 | File | Purpose |
 | --- | --- |
@@ -45,7 +45,7 @@ Then run `python3 papers/check.py`, fix anything it reports, commit and push.
 | `abstract` | Shown behind an "Abstract" toggle. |
 | `note` | A short line under the paper, e.g. an award. |
 | `themes` | Any of `learning`, `ledgers`, `incentives`, `mobile`: in the homepage graph, the paper hangs off these research themes. |
-| `selected` | `true` to show the paper in the homepage's *Selected publications* (and its graph), newest first. |
+| `selected` | `true` to show the paper under the Selected filter and in the homepage graph. |
 
 ## Previewing
 

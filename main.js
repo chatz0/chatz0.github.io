@@ -60,84 +60,92 @@
     el.classList.add('flash');
   }
 
-  /* ---------- Selected publications (homepage) ----------
-     Built from the files in papers/ marked "selected": true, newest first.
-     The graph starts once this list is in place, because it reads its paper
-     nodes from it. */
+  /* ---------- Page content from data.js (Research and Teaching pages) ---------- */
+  var SITE = window.SITE || { themes: [], courses: [] };
+  function make(tag, className, text) {
+    var e = document.createElement(tag);
+    if (className) e.className = className;
+    if (text) e.textContent = text;
+    return e;
+  }
+  var themeList = document.getElementById('theme-list');
+  if (themeList) {
+    SITE.themes.forEach(function (t) {
+      var card = make('article', 'theme');
+      card.id = 'theme-' + t.id;
+      card.appendChild(make('h3', '', t.title));
+      card.appendChild(make('p', '', t.text));
+      themeList.appendChild(card);
+    });
+  }
+  [['course-list', false], ['course-list-past', true]].forEach(function (pair) {
+    var ul = document.getElementById(pair[0]);
+    if (!ul) return;
+    SITE.courses.filter(function (c) { return !!c.past === pair[1]; }).forEach(function (c) {
+      var li = make('li', 'course');
+      var a = make('a', 'course-title', c.title);
+      a.href = c.url; a.rel = 'noopener';
+      li.appendChild(a);
+      li.appendChild(make('span', 'course-meta', c.code + ' \u00b7 ' + c.level));
+      ul.appendChild(li);
+    });
+  });
+
+  // Mark the current page in the top nav.
+  var here = location.pathname.split('/').pop() || 'index.html';
+  if (here === 'member.html') here = 'group.html';
+  document.querySelectorAll('.site-nav a').forEach(function (a) {
+    if (a.getAttribute('href') === here) { a.classList.add('active'); a.setAttribute('aria-current', 'page'); }
+  });
+
+  // Arriving at page.html#some-id (e.g. from the graph): highlight that item.
+  if (location.hash.length > 1) {
+    var hashTarget = null;
+    try { hashTarget = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch (e) {}
+    if (hashTarget && hashTarget.classList.contains('theme')) setTimeout(function () { reveal(hashTarget); }, 250);
+  }
+
+  /* ---------- Selected papers, for the graph ----------
+     The papers in papers/ marked "selected": true, newest first. Opened straight
+     from disk the files can't be read, and the graph simply has no paper nodes. */
   function loadSelectedPapers() {
-    var list = document.getElementById('selected-pubs');
-    if (!list) return Promise.resolve();
-    var note = document.getElementById('pubs-message');
+    if (!document.getElementById('graph')) return Promise.resolve([]);
     function getJSON(url) {
       return fetch(url, { cache: 'no-cache' }).then(function (r) {
         if (!r.ok) throw new Error(url + ': HTTP ' + r.status);
         return r.json();
       });
     }
-    function el(tag, className, text) {
-      var e = document.createElement(tag);
-      if (className) e.className = className;
-      if (text != null && text !== '') e.textContent = text;
-      return e;
-    }
     function str(v) { return typeof v === 'string' ? v.trim() : ''; }
-    function chip(href, text) {
-      var a = el('a', '', text); a.href = href; a.rel = 'noopener'; return a;
-    }
-    function entry(p) {
-      var li = el('li', 'pub');
-      var themes = (Array.isArray(p.themes) ? p.themes : []).map(str).filter(function (t) { return /^[a-z]+$/.test(t); });
-      li.setAttribute('data-themes', themes.join(' '));
-      li.setAttribute('data-short', str(p.short_title) || str(p.title).split(':')[0]);
-      li.appendChild(el('span', 'pub-year', String(p.year)));
-      var body = el('div');
-      body.appendChild(el('p', 'pub-title', str(p.title)));
-      var authors = el('p', 'pub-authors');
-      (Array.isArray(p.authors) ? p.authors : []).map(str).filter(Boolean).forEach(function (name, i) {
-        if (i) authors.appendChild(document.createTextNode(', '));
-        authors.appendChild(name === 'Dimitris Chatzopoulos' ? el('b', '', name) : document.createTextNode(name));
-      });
-      body.appendChild(authors);
-      if (str(p.venue)) body.appendChild(el('p', 'pub-venue', str(p.venue)));
-      var links = el('p', 'pub-links');
-      if (/^10\.\S+$/.test(str(p.doi))) links.appendChild(chip('https://doi.org/' + str(p.doi), 'DOI'));
-      if (/^[\w.\/-]+$/.test(str(p.arxiv))) links.appendChild(chip('https://arxiv.org/abs/' + str(p.arxiv), str(p.arxiv_label) || 'arXiv'));
-      [['eprint', 'ePrint'], ['pdf', 'PDF'], ['code', 'Code'], ['slides', 'Slides']].forEach(function (k) {
-        var u = str(p[k[0]]);
-        if (/^https?:\/\/\S+$/i.test(u)) links.appendChild(chip(u, k[1]));
-      });
-      if (links.childNodes.length) body.appendChild(links);
-      li.appendChild(body);
-      return li;
-    }
     return getJSON('papers/index.json')
       .then(function (files) {
         return Promise.all(files.map(function (f) {
-          return getJSON('papers/' + encodeURIComponent(f)).catch(function (e) { console.warn(e); return null; });
+          return getJSON('papers/' + encodeURIComponent(f)).then(
+            function (p) { return { slug: String(f).replace(/\.json$/i, ''), p: p }; },
+            function (e) { console.warn(e); return null; });
         }));
       })
-      .then(function (papers) {
-        papers.filter(function (p) { return p && p.selected === true && str(p.title) && p.year; })
-          .sort(function (a, b) { return b.year - a.year || str(a.title).localeCompare(str(b.title)); })
-          .forEach(function (p) { list.appendChild(entry(p)); });
+      .then(function (rs) {
+        return rs.filter(function (r) { return r && r.p && r.p.selected === true && str(r.p.title) && r.p.year; })
+          .sort(function (a, b) { return b.p.year - a.p.year || str(a.p.title).localeCompare(str(b.p.title)); })
+          .map(function (r) {
+            return {
+              slug: r.slug, title: str(r.p.title), year: r.p.year, venue: str(r.p.venue),
+              short: str(r.p.short_title) || str(r.p.title).split(':')[0],
+              themes: (Array.isArray(r.p.themes) ? r.p.themes : []).map(str)
+            };
+          });
       })
-      .catch(function (err) {
-        console.warn(err);
-        note.textContent = location.protocol === 'file:'
-          ? 'The paper list can\u2019t load when this page is opened straight from disk. To preview it, run ' +
-            '"python3 -m http.server" in the site folder and open http://localhost:8000/.'
-          : 'The paper list couldn\u2019t be loaded right now. See the full list on DBLP or Google Scholar.';
-        note.hidden = false;
-      });
+      .catch(function (err) { console.warn(err); return []; });
   }
 
   /* ---------- Interactive graph ----------
-     Built from the page itself: research themes, the selected papers and the
-     courses are read from the DOM, so changing those lists changes the graph. */
+     Built from data.js (research themes, courses) and the selected papers in
+     papers/. Nodes open the matching page. */
   var graph = { redraw: function () {} };
-  loadSelectedPapers().then(startGraph, startGraph);
+  loadSelectedPapers().then(startGraph, function () { startGraph([]); });
 
-  function startGraph() { graph = (function () {
+  function startGraph(selectedPapers) { graph = (function () {
     var panel = document.querySelector('.graph-panel');
     var card = document.querySelector('.intro-card');
     var container = document.getElementById('graph');
@@ -183,18 +191,18 @@
     };
     sections.forEach(function (s) {
       node('s:' + s[0], s[1], 'section', FOLDS[s[0]]
-        ? { target: '#' + s[0], toggle: true, tip: FOLDS[s[0]] }
-        : { target: '#' + s[0], tip: 'Go to ' + s[1] });
+        ? { toggle: true, tip: FOLDS[s[0]] }
+        : { page: s[0] + '.html', tip: 'Open the ' + s[1] + ' page' });
       link('me', 's:' + s[0], 70);
     });
 
     // Service opens Research (programme committees, reviewing: details to come)
     // and Academic (roles at UCD).
-    node('sv:research', 'Research', 'theme', { under: 's:service', tip: 'Research service: programme committees, reviewing (details to come)' });
+    node('sv:research', 'Research', 'theme', { under: 's:service', page: 'service.html', tip: 'Research service: programme committees, reviewing (details to come)' });
     link('s:service', 'sv:research', 45);
     node('sv:academic', 'Academic', 'theme', { toggle: true, under: 's:service', tip: 'Academic service (click to show or hide)' });
     link('s:service', 'sv:academic', 45);
-    node('sv:director', 'Programme Director', 'place', { under: 'sv:academic', target: '#teaching',
+    node('sv:director', 'Programme Director', 'place', { under: 'sv:academic', page: 'service.html',
       tip: 'Programme Director, Higher Diploma in Computer Science, UCD' });
     link('sv:academic', 'sv:director', 40);
 
@@ -209,64 +217,53 @@
       link('r:projects', 'r:' + kind.toLowerCase(), 40);
     });
 
-    document.querySelectorAll('.theme[data-theme-id]').forEach(function (el) {
-      var id = el.getAttribute('data-theme-id');
-      var title = el.querySelector('h3').textContent.trim();
-      node('t:' + id, title, 'theme', { group: id, el: el, tip: title, under: 'r:interests' });
-      link('r:interests', 't:' + id, 55);
+    var themeIds = {};
+    SITE.themes.forEach(function (t) {
+      themeIds[t.id] = true;
+      node('t:' + t.id, t.title, 'theme', { group: t.id, page: 'research.html#theme-' + t.id, tip: t.title, under: 'r:interests' });
+      link('r:interests', 't:' + t.id, 55);
     });
 
-    document.querySelectorAll('.pub[data-short]').forEach(function (el, i) {
+    (selectedPapers || []).forEach(function (p, i) {
       var id = 'p:' + i;
-      var themes = (el.getAttribute('data-themes') || '').split(/\s+/).filter(Boolean);
-      var year = el.querySelector('.pub-year');
-      var venue = el.querySelector('.pub-venue');
-      node(id, el.getAttribute('data-short'), 'paper', {
-        group: themes[0], el: el,
-        under: themes.some(function (t) { return document.querySelector('[data-theme-id="' + t + '"]'); }) ? 'r:interests' : 's:publications',
-        tip: el.querySelector('.pub-title').textContent.trim() +
-             (venue ? ' · ' + venue.textContent.trim() : '') +
-             (year ? ' (' + year.textContent.trim() + ')' : '')
+      var themes = p.themes.filter(function (t) { return themeIds[t]; });
+      node(id, p.short, 'paper', {
+        group: themes[0], page: 'publications.html#paper-' + p.slug,
+        under: themes.length ? 'r:interests' : 's:publications',
+        tip: p.title + (p.venue ? ' \u00b7 ' + p.venue : '') + ' (' + p.year + ')'
       });
-      var linked = false;
-      themes.forEach(function (t) {
-        if (document.querySelector('[data-theme-id="' + t + '"]')) { link('t:' + t, id, 42); linked = true; }
-      });
-      if (!linked) link('s:publications', id, 60); // a paper without a theme hangs off Publications
+      themes.forEach(function (t) { link('t:' + t, id, 42); });
+      if (!themes.length) link('s:publications', id, 60); // a paper without a theme hangs off Publications
     });
 
     [['UCD', 'University College Dublin'], ['HKUST', 'Hong Kong University of Science and Technology'],
      ['Thessaly', 'University of Thessaly'], ['EPFL', 'EPFL (visit, 2014)'],
      ['Tsinghua', 'Tsinghua University (visit, 2016)'], ['Cambridge', 'University of Cambridge (visit, 2016)']
     ].forEach(function (p) {
-      node('i:' + p[0], p[0], 'place', { target: '#background', tip: p[1], under: 's:background' });
+      node('i:' + p[0], p[0], 'place', { page: 'background.html', tip: p[1], under: 's:background' });
       link('s:background', 'i:' + p[0], 50);
     });
     // The PhD thesis was on incentive and reputation mechanisms.
-    if (document.querySelector('[data-theme-id="incentives"]')) link('t:incentives', 'i:HKUST', 80);
+    if (themeIds.incentives) link('t:incentives', 'i:HKUST', 80);
 
-    // Courses come from the Teaching list; clicking one opens its UCD module page.
-    // Past courses hang off a "Past" node and stay hidden until it's clicked.
-    if (document.querySelector('#teaching .course[data-past]')) {
+    // Courses (from data.js) open their UCD module page. Past courses hang off a
+    // "Past" node and stay hidden until it's clicked.
+    if (SITE.courses.some(function (c) { return c.past; })) {
       node('c:past', 'Past', 'theme', { toggle: true, tip: 'Previously taught modules (click to show or hide)' });
       link('s:teaching', 'c:past', 45);
     }
-    document.querySelectorAll('#teaching .course[data-short]').forEach(function (el, i) {
-      var a = el.querySelector('a');
-      var meta = el.querySelector('.course-meta');
-      var past = el.hasAttribute('data-past');
-      node('c:' + i, el.getAttribute('data-short'), 'place', {
-        href: a ? a.href : null, target: '#teaching', under: past ? 'c:past' : null,
-        tip: (a ? a.textContent.trim() : '') + (meta ? ' \u00b7 ' + meta.textContent.trim() : '')
-          + (past ? ' (previously taught)' : '')
+    SITE.courses.forEach(function (c, i) {
+      node('c:' + i, c.short, 'place', {
+        href: c.url, under: c.past ? 'c:past' : null,
+        tip: c.title + ' \u00b7 ' + c.code + ' \u00b7 ' + c.level + (c.past ? ' (previously taught)' : '')
       });
-      link(past ? 'c:past' : 's:teaching', 'c:' + i, past ? 35 : 40);
+      link(c.past ? 'c:past' : 's:teaching', 'c:' + i, c.past ? 35 : 40);
     });
 
-    // Publications opens: the full list page, the selected papers below, Google Scholar and DBLP.
+    // Publications opens: the full list, the selected papers, Google Scholar and DBLP.
     node('x:full', 'Full list', 'theme', { page: 'publications.html', tip: 'All publications, by year', under: 's:publications' });
     link('s:publications', 'x:full', 50);
-    node('x:papers', 'Selected', 'theme', { target: '#publications', tip: 'Go to the selected publications below', under: 's:publications' });
+    node('x:papers', 'Selected', 'theme', { page: 'publications.html?show=selected', tip: 'Selected publications', under: 's:publications' });
     link('s:publications', 'x:papers', 50);
     [['Google Scholar', 'https://scholar.google.com/citations?user=vXz1bl4AAAAJ&hl=en'],
      ['DBLP', 'https://dblp.org/pid/135/6249.html']
@@ -278,9 +275,9 @@
     node('x:LinkedIn', 'LinkedIn', 'profile', { href: 'https://www.linkedin.com/in/dimhatzo/', tip: 'Open LinkedIn' });
     link('me', 'x:LinkedIn', 95);
 
-    // Email shows the address pattern, like the Contact section, and scrolls there:
-    // the full address isn't written anywhere in this script.
-    node('x:Email', 'Email', 'profile', { target: '#contact', tip: 'Email: first_name.last_name@ucd.ie' });
+    // Email shows the address pattern and opens the Contact page: the full
+    // address isn't written anywhere in this script.
+    node('x:Email', 'Email', 'profile', { page: 'contact.html', tip: 'Email: first_name.last_name@ucd.ie' });
     link('s:contact', 'x:Email', 40);
 
     // The research group (DAIS Lab): a cloud linked only to the centre photo; opens its own page.
