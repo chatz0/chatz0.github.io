@@ -508,3 +508,12 @@ html:not(.js) .graph-panel, html:not(.js) .graph-controls, html:not(.js) .graph-
 .contact .links { margin-top: 1.5rem; }
 .to-come { color: var(--muted); margin-bottom: 1.5rem; }
 #projects ~ .sub-h { margin-top: 1.25rem; }
+
+/* Module pages */
+.module-code { color: var(--accent); font-weight: 600; letter-spacing: 0.04em; margin-top: 0.5rem; }
+.module-page .papers-title { margin-bottom: 1.5rem; }
+.module-facts { max-width: 640px; }
+.module-h { font-size: 1.25rem; margin: 2rem 0 0.6rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--line); max-width: 760px; }
+.module-topics { margin: 0; padding-left: 1.2em; }
+.module-topics li { margin: 4px 0; }
+.module-links { margin-top: 2rem; }

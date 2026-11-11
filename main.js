@@ -85,16 +85,60 @@
       var li = make('li', 'course');
       li.id = c.code.toLowerCase();
       var a = make('a', 'course-title', c.title);
-      a.href = c.url; a.rel = 'noopener';
+      a.href = 'module.html?id=' + c.code.toLowerCase();
       li.appendChild(a);
       li.appendChild(make('span', 'course-meta', c.code + ' \u00b7 ' + c.level));
       ul.appendChild(li);
     });
   });
 
+  // module.html?id=<code>: one module's page, from its entry in data.js.
+  var modulePage = document.getElementById('module-page');
+  if (modulePage) {
+    var wanted = (new URLSearchParams(location.search).get('id') || '').toLowerCase();
+    var mod = SITE.courses.filter(function (c) { return c.code.toLowerCase() === wanted; })[0];
+    if (!mod) {
+      document.title = 'Module not found \u00b7 Dimitris Chatzopoulos';
+      modulePage.appendChild(make('h1', 'profile-missing-title', 'Module not found'));
+      var nf = make('p', 'members-message', 'There\u2019s no module at this address. ');
+      var back = make('a', '', 'See all modules.'); back.href = 'teaching.html';
+      nf.appendChild(back); modulePage.appendChild(nf);
+    } else {
+      document.title = mod.title + ' (' + mod.code + ') \u00b7 Dimitris Chatzopoulos';
+      modulePage.appendChild(make('p', 'module-code', mod.code));
+      modulePage.appendChild(make('h1', 'papers-title', mod.title));
+      var facts = make('dl', 'profile-facts module-facts');
+      [['Level', mod.level], ['Trimester', mod.trimester], ['Taught', mod.years],
+       ['Status', mod.past ? 'Previously taught' : 'Currently teaching'],
+       ['Where', 'School of Computer Science, University College Dublin']].forEach(function (f) {
+        if (!f[1]) return;
+        facts.appendChild(make('dt', '', f[0])); facts.appendChild(make('dd', '', f[1]));
+      });
+      modulePage.appendChild(facts);
+      if (mod.description) {
+        modulePage.appendChild(make('h2', 'module-h', 'About the module'));
+        modulePage.appendChild(make('p', 'profile-bio', mod.description));
+      }
+      if (Array.isArray(mod.topics) && mod.topics.length) {
+        modulePage.appendChild(make('h2', 'module-h', 'Topics'));
+        var tl = make('ul', 'module-topics');
+        mod.topics.forEach(function (t) { tl.appendChild(make('li', '', t)); });
+        modulePage.appendChild(tl);
+      }
+      var mlinks = make('p', 'profile-links module-links');
+      [{ label: 'UCD module descriptor', url: mod.url }].concat(Array.isArray(mod.links) ? mod.links : []).forEach(function (l) {
+        if (!l || !/^https?:\/\//i.test(l.url || '')) return;
+        var a = make('a', '', l.label || 'Link'); a.href = l.url; a.rel = 'noopener';
+        mlinks.appendChild(a);
+      });
+      modulePage.appendChild(mlinks);
+    }
+  }
+
   // Mark the current page in the top nav.
   var here = location.pathname.split('/').pop() || 'index.html';
   if (here === 'member.html') here = 'group.html';
+  if (here === 'module.html') here = 'teaching.html';
   document.querySelectorAll('.site-nav a').forEach(function (a) {
     if (a.getAttribute('href') === here) { a.classList.add('active'); a.setAttribute('aria-current', 'page'); }
   });
@@ -258,7 +302,7 @@
     }
     SITE.courses.forEach(function (c, i) {
       node('c:' + i, c.short, 'place', {
-        page: 'teaching.html#' + c.code.toLowerCase(), under: c.past ? 'c:past' : null,
+        page: 'module.html?id=' + c.code.toLowerCase(), under: c.past ? 'c:past' : null,
         tip: c.title + ' \u00b7 ' + c.code + ' \u00b7 ' + c.level + (c.past ? ' (previously taught)' : '')
       });
       link(c.past ? 'c:past' : 's:teaching', 'c:' + i, c.past ? 35 : 40);

@@ -1,5 +1,13 @@
-/* Site content shared by the homepage graph and the Research and Teaching pages.
-   Edit here: the graph and the pages both update. */
+/* Site content shared by the homepage graph and the Research, Teaching and module pages.
+   Edit here: the graph and the pages all update.
+
+   Each course gets its own page at module.html?id=<code in lowercase>. Besides the
+   fields below, a course may have any of these optional ones:
+     "trimester":   "Autumn"                      when it runs
+     "description": "Two or three sentences."     what the module is about
+     "topics":      ["Topic one", "Topic two"]    main topics covered
+     "years":       "2022–"                       when you taught it (e.g. "2021–2023" for past ones)
+     "links":       [{ "label": "Lecture notes", "url": "https://…" }]   materials */
 window.SITE = {
   "themes": [
     {

@@ -116,6 +116,7 @@
   function card(m, file) {
     var name = str(m.name);
     var li = el('li', 'member member-linked');
+    li.id = slugOf(file).replace(/[^\w-]/g, '');   // group.html#firstname-lastname
     li.appendChild(avatar(m, 96));
 
     var info = el('div', 'member-info');
@@ -160,6 +161,13 @@
     });
 
     if (shown) statusSection.hidden = true;
+
+    // group.html#phd or group.html#firstname-lastname: the cards exist only now, so jump here.
+    var target = /^#[\w-]+$/.test(location.hash) ? document.getElementById(location.hash.slice(1)) : null;
+    if (target) {
+      target.scrollIntoView({ block: 'center' });
+      target.classList.remove('flash'); void target.offsetWidth; target.classList.add('flash');
+    }
     else if (failed) showError(message);
     else message.textContent = 'No members are listed yet.';
   }

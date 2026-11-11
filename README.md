@@ -9,6 +9,7 @@ Open `index.html` in a browser to preview it locally; pages that read `papers/` 
 | --- | --- |
 | `index.html` | Homepage: the interactive graph and a short About |
 | `research.html`, `teaching.html` | Research interests and modules, built from `data.js` |
+| `module.html` | One module's page, e.g. `module.html?id=comp41770`, built from that course's entry in `data.js` |
 | `background.html`, `service.html`, `contact.html` | Positions and education, service roles, contact details (written directly in each file) |
 | `publications.html`, `papers.js` | The publication list (All / Selected / by type), built from the files in `papers/` |
 | `group.html`, `member.html`, `members.js` | DAIS Lab page and each member's page, built from the files in `members/` |
@@ -26,7 +27,8 @@ Every page has the same top nav. To add a page, copy `service.html`, and add its
 ## Editing
 
 - **Add a publication:** add a file to `papers/` (see `papers/README.md`). With `"selected": true` it also appears under the Selected filter and in the homepage graph, linked to the research themes in its `themes` field.
-- **Change research themes or courses:** edit `data.js`; the graph and the Research and Teaching pages both update.
+- **Change research themes or courses:** edit `data.js`; the graph and the Research, Teaching and module pages all update. Each course gets its own page; the optional fields listed at the top of `data.js` (`description`, `topics`, `trimester`, `years`, `links`) fill it in.
+- **Link to a spot on a page:** subsections and items have labels, e.g. `background.html#epfl`, `group.html#phd`, `group.html#joana-tirana`, `publications.html#paper-2020-chatzopoulos-mneme`; arriving at one highlights it.
 - **Add a lab member:** add their JSON file to `members/` and list it in `members/index.json` (details in `members/README.md`). The DAIS Lab page builds its cards from these files; photos go in `assets/people/`. Each member automatically gets their own page, linked from their card. To preview the lab pages locally, run `python3 -m http.server` and open http://localhost:8000/group.html (opened straight from disk, they can't load the files).
 - **Add papers to the full list:** see `papers/README.md`; `papers/import_bibtex.py` turns a BibTeX export from DBLP or Scholar into paper files.
 - **After changing CSS or JS:** bump the `?v=` number on the `styles.css`, `data.js`, `main.js`, `members.js`, `papers.js` and `vendor/…` links in every `.html` file, so browsers don't keep a cached old copy (GitHub Pages caches for 10 minutes).
