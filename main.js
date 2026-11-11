@@ -233,7 +233,7 @@
                       scale > 2.2 || (hoverNode && hlNodes.has(n));
       if (showLabel && n.kind !== 'me') {
         var size = (n.kind === 'section' ? 12.5 : n.kind === 'theme' ? 11 : 10) / Math.min(scale, 1.6);
-        ctx.font = (n.kind === 'section' ? '600 ' : '500 ') + size + 'px Inter, system-ui, sans-serif';
+        ctx.font = (n.kind === 'section' ? '600 ' : '500 ') + size + 'px "Courier New", Courier, monospace';
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
         var y = n.y + r + 3 / scale;
         ctx.lineWidth = 3 / scale; ctx.strokeStyle = p.halo; ctx.lineJoin = 'round';
@@ -289,7 +289,7 @@
       ctx.arc(n.x, n.y, Math.max(r + 3, 11 / scale), 0, Math.PI * 2);
       if (n.kind === 'section' || n.kind === 'theme' || (n.kind !== 'me' && scale > 2.2)) {
         var size = (n.kind === 'section' ? 12.5 : n.kind === 'theme' ? 11 : 10) / Math.min(scale, 1.6);
-        ctx.font = '600 ' + size + 'px Inter, system-ui, sans-serif';
+        ctx.font = '600 ' + size + 'px "Courier New", Courier, monospace';
         var w = ctx.measureText(n.label).width + 6 / scale;
         ctx.rect(n.x - w / 2, n.y + r, w, 3 / scale + size * 1.35);
       }
@@ -393,7 +393,7 @@
           var r = RADIUS[n.kind], hw = r, below = r;
           if (n.kind === 'section' || n.kind === 'theme') {
             var px = n.kind === 'section' ? 12.5 : 11;          // label size on screen (scale <= 1.6)
-            var f = Math.min(k, 1.6) / k;                       // screen px -> graph units
+            var f = 1 / Math.min(k, 1.6);                       // label size in graph units, as drawn
             hw = Math.max(r, n.label.length * px * 0.3 * f);
             below = r + (3 + px * 1.25) * f;
           }
@@ -461,7 +461,7 @@
             (n.kind === 'section' || n.kind === 'theme' || k > 2.2)) {
           var base = n.kind === 'section' ? 12.5 : n.kind === 'theme' ? 11 : 10;
           var fs = base * k / Math.min(k, 1.6);                     // label size on screen
-          measureCtx.font = '600 ' + fs + 'px Inter, system-ui, sans-serif';
+          measureCtx.font = '600 ' + fs + 'px "Courier New", Courier, monospace';
           var w = measureCtx.measureText(n.label).width + 8;
           var top = s.y + r, bottom = top + 4 + fs * 1.35;
           if (px >= s.x - w / 2 && px <= s.x + w / 2 && py >= top && py <= bottom) labelHit = n;
