@@ -98,9 +98,12 @@
       ['research', 'Research'], ['publications', 'Publications'], ['background', 'Background'],
       ['teaching', 'Teaching'], ['contact', 'Contact']
     ];
-    // Research and Background fold out (+/-) to show their themes, papers and universities.
+    // Research, Publications and Background fold out (+/-): Research to its themes
+    // and papers, Publications to the paper list, Scholar and DBLP, Background to
+    // the universities.
     var FOLDS = {
       research: 'Research themes and papers (click to show or hide)',
+      publications: 'Papers, Google Scholar and DBLP (click to show or hide)',
       background: 'Universities and research visits (click to show or hide)'
     };
     sections.forEach(function (s) {
@@ -124,7 +127,7 @@
       var venue = el.querySelector('.pub-venue');
       node(id, el.getAttribute('data-short'), 'paper', {
         group: themes[0], el: el,
-        under: themes.some(function (t) { return document.querySelector('[data-theme-id="' + t + '"]'); }) ? 's:research' : null,
+        under: themes.some(function (t) { return document.querySelector('[data-theme-id="' + t + '"]'); }) ? 's:research' : 's:publications',
         tip: el.querySelector('.pub-title').textContent.trim() +
              (venue ? ' · ' + venue.textContent.trim() : '') +
              (year ? ' (' + year.textContent.trim() + ')' : '')
@@ -164,9 +167,17 @@
       link(past ? 'c:past' : 's:teaching', 'c:' + i, past ? 35 : 40);
     });
 
-    [['Scholar', 'https://scholar.google.com/citations?user=vXz1bl4AAAAJ&hl=en', 'Google Scholar'],
-     ['DBLP', 'https://dblp.org/pid/135/6249.html', 'DBLP'],
-     ['LinkedIn', 'https://www.linkedin.com/in/dimhatzo/', 'LinkedIn'],
+    // Publications opens: the paper list on this page, Google Scholar and DBLP.
+    node('x:papers', 'Selected papers', 'theme', { target: '#publications', tip: 'Go to the selected publications below', under: 's:publications' });
+    link('s:publications', 'x:papers', 50);
+    [['Google Scholar', 'https://scholar.google.com/citations?user=vXz1bl4AAAAJ&hl=en'],
+     ['DBLP', 'https://dblp.org/pid/135/6249.html']
+    ].forEach(function (p) {
+      node('x:' + p[0], p[0], 'theme', { href: p[1], tip: 'Open ' + p[0], under: 's:publications' });
+      link('s:publications', 'x:' + p[0], 50);
+    });
+
+    [['LinkedIn', 'https://www.linkedin.com/in/dimhatzo/', 'LinkedIn'],
      ['Email', 'mailto:dimitris.chatzopoulos@ucd.ie', 'dimitris.chatzopoulos@ucd.ie']
     ].forEach(function (p) {
       node('x:' + p[0], p[0], 'profile', { href: p[1], tip: 'Open ' + p[2] });
@@ -423,8 +434,8 @@
       // After a group opens or closes, the layout keeps relaxing for a moment.
       // Once it's at rest, re-fit if needed: always on phones, where it's tight.
       if (refitWhenSettled) {
-        var list = refitWhenSettled; refitWhenSettled = null;
-        if (container.clientWidth < 640 || !allInView(list)) fit(400);
+        refitWhenSettled = false;
+        if (container.clientWidth < 640 || !allInView(nodes)) fit(400);
       }
     });
     // Fit early too, so the first frames already look composed.
@@ -636,11 +647,19 @@
       var centre = g.d3Force('center');
       g.d3Force('center', null);
       g.graphData({ nodes: nodes, links: links });
+      // Do the new nodes also link to nodes outside the group (themes to papers)?
+      // Then let the whole graph re-settle afterwards, so those links can untangle.
+      var crossLinks = added.some(function (n) {
+        return Array.from(n.neighbors).some(function (q) {
+          return q !== t && !addedSet.has(q) && isVisible(q) && !isUnder(q, t);
+        });
+      });
       setTimeout(function () {
         held.forEach(function (n) { if (!n.pinned) { n.fx = undefined; n.fy = undefined; } });
         g.d3Force('center', centre);
-        if (!allInView(added)) fit(500);
-        refitWhenSettled = added;
+        if (crossLinks) g.d3ReheatSimulation();
+        else if (!allInView(nodes)) fit(500);
+        refitWhenSettled = true;
       }, 1200);
     }
 
