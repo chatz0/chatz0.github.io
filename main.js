@@ -266,7 +266,8 @@
       research: 'Interests and projects (click to show or hide)',
       publications: 'Full list, selected papers, Google Scholar and DBLP (click to show or hide)',
       background: 'Universities and research visits (click to show or hide)',
-      service: 'Research and academic service (click to show or hide)'
+      service: 'Research and academic service (click to show or hide)',
+      teaching: 'Current and past modules (click to show or hide)'
     };
     sections.forEach(function (s) {
       node('s:' + s[0], s[1], 'section', FOLDS[s[0]]
@@ -325,18 +326,21 @@
     // The PhD thesis was on incentive and reputation mechanisms.
     if (themeIds.incentives) link('t:incentives', 'i:HKUST', 80);
 
-    // Courses (from data.js) open their UCD module page. Past courses hang off a
-    // "Past" node and stay hidden until it's clicked.
-    if (SITE.courses.some(function (c) { return c.past; })) {
-      node('c:past', 'Past', 'theme', { toggle: true, tip: 'Previously taught modules (click to show or hide)' });
-      link('s:teaching', 'c:past', 45);
-    }
+    // Teaching opens Current and Past, which open their modules (from data.js);
+    // each module node opens that module's page.
+    [['current', 'Current', false], ['past', 'Past', true]].forEach(function (grp) {
+      if (!SITE.courses.some(function (c) { return !!c.past === grp[2]; })) return;
+      node('c:' + grp[0], grp[1], 'theme', { toggle: true, under: 's:teaching',
+        tip: (grp[2] ? 'Previously taught' : 'Current') + ' modules (click to show or hide)' });
+      link('s:teaching', 'c:' + grp[0], 45);
+    });
     SITE.courses.forEach(function (c, i) {
+      var parent = c.past ? 'c:past' : 'c:current';
       node('c:' + i, c.short, 'place', {
-        page: 'module.html?id=' + c.code.toLowerCase(), under: c.past ? 'c:past' : null,
+        page: 'module.html?id=' + c.code.toLowerCase(), under: parent,
         tip: c.title + ' \u00b7 ' + c.code + ' \u00b7 ' + c.level + (c.past ? ' (previously taught)' : '')
       });
-      link(c.past ? 'c:past' : 's:teaching', 'c:' + i, c.past ? 35 : 40);
+      link(parent, 'c:' + i, 38);
     });
 
     // Publications opens: the full list, the selected papers, Google Scholar and DBLP.
