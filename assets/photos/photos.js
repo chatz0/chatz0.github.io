@@ -3,7 +3,7 @@
    For each photo you can edit:
      "caption": shown under the photo (optional)
      "alt":     what the photo shows, for screen readers
-     "page":    pin it to one page: "research", "background", "teaching", "service",
+     "page":    pin it to one page: "research", "about", "teaching", "service",
                 "contact" or "group". Leave "" to let the site spread photos across pages. */
 window.PHOTOS = [
   {
@@ -18,7 +18,7 @@ window.PHOTOS = [
     "file": "phd-defense.jpg",
     "caption": "PhD defence, HKUST",
     "alt": "Dimitris presenting the final slide of his PhD defence, which shows a group photo and the words Thank you",
-    "page": "background",
+    "page": "about",
     "width": 1196,
     "height": 511
   }

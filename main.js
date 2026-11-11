@@ -139,7 +139,7 @@
      From assets/photos/photos.js. Each page shows up to three: photos pinned to
      it first, then unpinned ones, dealt out across the pages in turn. */
   (function () {
-    var PAGES = ['research', 'background', 'teaching', 'service', 'contact', 'group'];
+    var PAGES = ['research', 'about', 'teaching', 'service', 'contact', 'group'];
     var page = (location.pathname.split('/').pop() || '').replace(/\.html$/, '');
     var all = Array.isArray(window.PHOTOS) ? window.PHOTOS : [];
     var main = document.getElementById('main');
@@ -311,7 +311,7 @@
     me.fx = 0; me.fy = 0; // keep the centre node pinned
 
     var sections = [
-      ['research', 'Research'], ['publications', 'Publications'], ['background', 'Background'],
+      ['about', 'About'], ['research', 'Research'], ['publications', 'Publications'],
       ['teaching', 'Teaching'], ['service', 'Service'], ['contact', 'Contact']
     ];
     // Research, Publications and Background fold out (+/-): Research to its themes
@@ -320,7 +320,7 @@
     var FOLDS = {
       research: 'Interests and projects (click to show or hide)',
       publications: 'Full list, selected papers, Google Scholar and DBLP (click to show or hide)',
-      background: 'Universities and research visits (click to show or hide)',
+      about: 'Universities and research visits (click to show or hide)',
       service: 'Research and academic service (click to show or hide)',
       teaching: 'Current and past modules (click to show or hide)'
     };
@@ -375,8 +375,8 @@
      ['Thessaly', 'University of Thessaly'], ['EPFL', 'EPFL (visit, 2014)'],
      ['Tsinghua', 'Tsinghua University (visit, 2016)'], ['Cambridge', 'University of Cambridge (visit, 2016)']
     ].forEach(function (p) {
-      node('i:' + p[0], p[0], 'place', { page: 'background.html#' + p[0].toLowerCase(), tip: p[1], under: 's:background' });
-      link('s:background', 'i:' + p[0], 50);
+      node('i:' + p[0], p[0], 'place', { page: 'about.html#' + p[0].toLowerCase(), tip: p[1], under: 's:about' });
+      link('s:about', 'i:' + p[0], 50);
     });
     // The PhD thesis was on incentive and reputation mechanisms.
     if (themeIds.incentives) link('t:incentives', 'i:HKUST', 80);

@@ -8,7 +8,7 @@ Photos shown beside the text on the inner pages (below the text on smaller scree
    (HEIC needs `pip install pillow-heif` on some systems; exporting as JPEG is simpler).
 2. From the repository root run `python3 assets/photos/update.py` (needs `pip install pillow`).
 3. Optionally open `photos.js` and fill in a `caption`, an `alt` description, or a `page` to pin a
-   photo to one page (`research`, `background`, `teaching`, `service`, `contact`, `group`).
+   photo to one page (`research`, `about`, `teaching`, `service`, `contact`, `group`).
 4. Commit and push.
 
 To remove a photo, delete its file here and run the script again.
