@@ -138,9 +138,15 @@
     // The PhD thesis was on incentive and reputation mechanisms.
     if (document.querySelector('[data-theme-id="incentives"]')) link('t:incentives', 'i:HKUST', 80);
 
-    [['Cloud Computing'], ['Distributed Systems']].forEach(function (c) {
-      node('c:' + c[0], c[0], 'place', { target: '#teaching', tip: 'Course: ' + c[0] });
-      link('s:teaching', 'c:' + c[0], 40);
+    // Courses come from the Teaching list; clicking one opens its UCD module page.
+    document.querySelectorAll('#teaching .course[data-short]').forEach(function (el, i) {
+      var a = el.querySelector('a');
+      var meta = el.querySelector('.course-meta');
+      node('c:' + i, el.getAttribute('data-short'), 'place', {
+        href: a ? a.href : null, target: '#teaching',
+        tip: (a ? a.textContent.trim() : '') + (meta ? ' \u00b7 ' + meta.textContent.trim() : '')
+      });
+      link('s:teaching', 'c:' + i, 40);
     });
 
     [['Scholar', 'https://scholar.google.com/citations?user=vXz1bl4AAAAJ&hl=en', 'Google Scholar'],
