@@ -1,0 +1,12 @@
+# Originals stay local; only web/ and photos.js are published.
+/*.jpg
+/*.jpeg
+/*.JPG
+/*.JPEG
+/*.png
+/*.PNG
+/*.webp
+/*.heic
+/*.HEIC
+/*.tif
+/*.tiff

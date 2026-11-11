@@ -19,6 +19,7 @@ Open `index.html` in a browser to preview it locally; pages that read `papers/` 
 | `papers/`, `members/` | One JSON file per paper / lab member, each with a template and README |
 | `vendor/force-graph.min.js` | [force-graph](https://github.com/vasturiano/force-graph) 1.50.1 (MIT), the library behind the graph; vendored so the site needs no build or CDN. One local patch: the hover-canvas throttle is 40ms instead of 800ms, so nodes stay grabbable while moving |
 | `assets/me.png` | Portrait |
+| `assets/photos/` | Photos shown beside the text on the inner pages (never on the homepage); see `assets/photos/README.md` |
 | `404.html` | Not-found page |
 | `.nojekyll` | Tells GitHub Pages to serve files as-is |
 
@@ -28,6 +29,7 @@ Every page has the same top nav. To add a page, copy `service.html`, and add its
 
 - **Add a publication:** add a file to `papers/` (see `papers/README.md`). With `"selected": true` it also appears under the Selected filter and in the homepage graph, linked to the research themes in its `themes` field.
 - **Change research themes or courses:** edit `data.js`; the graph and the Research, Teaching and module pages all update. Each course gets its own page; the optional fields listed at the top of `data.js` (`description`, `topics`, `trimester`, `years`, `links`) fill it in.
+- **Add photos:** copy them into `assets/photos/` and run `python3 assets/photos/update.py` (details in `assets/photos/README.md`).
 - **Link to a spot on a page:** subsections and items have labels, e.g. `background.html#epfl`, `group.html#phd`, `group.html#joana-tirana`, `publications.html#paper-2020-chatzopoulos-mneme`; arriving at one highlights it.
 - **Add a lab member:** add their JSON file to `members/` and list it in `members/index.json` (details in `members/README.md`). The DAIS Lab page builds its cards from these files; photos go in `assets/people/`. Each member automatically gets their own page, linked from their card. To preview the lab pages locally, run `python3 -m http.server` and open http://localhost:8000/group.html (opened straight from disk, they can't load the files).
 - **Add papers to the full list:** see `papers/README.md`; `papers/import_bibtex.py` turns a BibTeX export from DBLP or Scholar into paper files.

@@ -135,6 +135,48 @@
     }
   }
 
+  /* ---------- Photos beside the text (inner pages) ----------
+     From assets/photos/photos.js. Each page shows up to three: photos pinned to
+     it first, then unpinned ones, dealt out across the pages in turn. */
+  (function () {
+    var PAGES = ['research', 'background', 'teaching', 'service', 'contact', 'group'];
+    var page = (location.pathname.split('/').pop() || '').replace(/\.html$/, '');
+    var all = Array.isArray(window.PHOTOS) ? window.PHOTOS : [];
+    var main = document.getElementById('main');
+    if (PAGES.indexOf(page) < 0 || !all.length || !main) return;
+    var ok = function (p) { return p && /^[\w.-]+\.(jpe?g|png|webp)$/i.test(p.file || ''); };
+    var mine = all.filter(function (p) { return ok(p) && p.page === page; });
+    var free = all.filter(function (p) { return ok(p) && PAGES.indexOf(p.page) < 0; });
+    free.forEach(function (p, i) { if (PAGES[i % PAGES.length] === page) mine.push(p); });
+    mine = mine.slice(0, 3);
+    if (!mine.length) return;
+
+    var rail = make('aside', 'photo-rail');
+    rail.setAttribute('aria-label', 'Photos');
+    mine.forEach(function (p) {
+      var fig = make('figure', 'photo');
+      var a = document.createElement('a');
+      a.href = 'assets/photos/web/' + encodeURIComponent(p.file);
+      var img = document.createElement('img');
+      img.src = a.href; img.alt = typeof p.alt === 'string' ? p.alt : '';
+      img.loading = 'lazy';
+      if (p.width && p.height) { img.width = p.width; img.height = p.height; }
+      a.appendChild(img); fig.appendChild(a);
+      if (p.caption) fig.appendChild(make('figcaption', '', p.caption));
+      rail.appendChild(fig);
+    });
+    main.appendChild(rail);
+    main.classList.add('has-photos');
+    // In the side column the photos float beside the text, so make sure a short
+    // page is still tall enough to hold them.
+    var wide = window.matchMedia('(min-width: 1440px)');
+    function fitRail() { main.style.minHeight = wide.matches ? (rail.offsetHeight + 136) + 'px' : ''; }
+    fitRail();
+    window.addEventListener('resize', fitRail);
+    if ('ResizeObserver' in window) new ResizeObserver(fitRail).observe(rail);   // photos finish loading
+    else window.addEventListener('load', fitRail);
+  })();
+
   // Mark the current page in the top nav.
   var here = location.pathname.split('/').pop() || 'index.html';
   if (here === 'member.html') here = 'group.html';

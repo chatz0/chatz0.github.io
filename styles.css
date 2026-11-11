@@ -517,3 +517,24 @@ html:not(.js) .graph-panel, html:not(.js) .graph-controls, html:not(.js) .graph-
 .module-topics { margin: 0; padding-left: 1.2em; }
 .module-topics li { margin: 4px 0; }
 .module-links { margin-top: 2rem; }
+
+/* ---------- Photos beside the text ---------- */
+.photo-rail {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; align-items: start;
+  max-width: var(--wrap); margin: 0 auto; padding: 40px 16px 56px;
+}
+.photo { margin: 0; }
+.photo img { display: block; width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); }
+.photo a:hover img { border-color: var(--accent); }
+.photo figcaption { margin-top: 6px; font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+@media (min-width: 640px) { .photo-rail { padding-left: 32px; padding-right: 32px; } }
+/* Wide screens: a column in the right-hand margin, level with the page title */
+@media (min-width: 1440px) {
+  main.has-photos { position: relative; }
+  main.has-photos > .photo-rail {
+    position: absolute; top: 96px; right: 24px; z-index: 1;
+    display: flex; flex-direction: column; gap: 18px;
+    width: 206px; max-width: none; margin: 0; padding: 0;
+  }
+}
+@media print { .photo-rail { display: none; } }
