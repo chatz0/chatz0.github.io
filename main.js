@@ -139,15 +139,21 @@
     if (document.querySelector('[data-theme-id="incentives"]')) link('t:incentives', 'i:HKUST', 80);
 
     // Courses come from the Teaching list; clicking one opens its UCD module page.
+    // Past courses hang off a "Past" node and stay hidden until it's clicked.
+    if (document.querySelector('#teaching .course[data-past]')) {
+      node('c:past', 'Past', 'theme', { toggle: true, tip: 'Previously taught modules (click to show or hide)' });
+      link('s:teaching', 'c:past', 45);
+    }
     document.querySelectorAll('#teaching .course[data-short]').forEach(function (el, i) {
       var a = el.querySelector('a');
       var meta = el.querySelector('.course-meta');
+      var past = el.hasAttribute('data-past');
       node('c:' + i, el.getAttribute('data-short'), 'place', {
-        href: a ? a.href : null, target: '#teaching',
+        href: a ? a.href : null, target: '#teaching', past: past, hidden: past,
         tip: (a ? a.textContent.trim() : '') + (meta ? ' \u00b7 ' + meta.textContent.trim() : '')
-          + (el.hasAttribute('data-past') ? ' (previously taught)' : '')
+          + (past ? ' (previously taught)' : '')
       });
-      link('s:teaching', 'c:' + i, 40);
+      link(past ? 'c:past' : 's:teaching', 'c:' + i, past ? 35 : 40);
     });
 
     [['Scholar', 'https://scholar.google.com/citations?user=vXz1bl4AAAAJ&hl=en', 'Google Scholar'],
@@ -171,6 +177,16 @@
       a.neighbors.add(b); b.neighbors.add(a);
       a.links.add(l); b.links.add(l);
     });
+
+    // The graph is only given the visible nodes and links; hidden ones (past
+    // courses while "Past" is closed) take no part in the layout.
+    var allNodes = nodes, allLinks = links;
+    function idOf(x) { return typeof x === 'object' ? x.id : x; }
+    function shown() {
+      nodes = allNodes.filter(function (n) { return !n.hidden; });
+      links = allLinks.filter(function (l) { return !byId[idOf(l.source)].hidden && !byId[idOf(l.target)].hidden; });
+      return { nodes: nodes, links: links };
+    }
 
     var hoverNode = null;
     var hlNodes = new Set(), hlLinks = new Set();
@@ -231,6 +247,17 @@
           ctx.lineWidth = 1.6; ctx.strokeStyle = c; ctx.stroke();
         } else {
           ctx.fillStyle = c; ctx.fill();
+          if (n.toggle) {
+            // + when closed, minus when open
+            var rr = (n === hoverNode ? r * 1.25 : r) * 0.5;
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = isDark() ? '#121614' : '#ffffff';
+            ctx.lineWidth = r * 0.28; ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(n.x - rr, n.y); ctx.lineTo(n.x + rr, n.y);
+            if (!n.open) { ctx.moveTo(n.x, n.y - rr); ctx.lineTo(n.x, n.y + rr); }
+            ctx.stroke();
+          }
         }
         ctx.restore();
       }
@@ -306,7 +333,7 @@
     /* --- Create the graph --- */
     var g = new window.ForceGraph(container)
       .backgroundColor('rgba(0,0,0,0)')
-      .graphData({ nodes: nodes, links: links })
+      .graphData(shown())
       .nodeLabel(function (n) { return escapeHtml(n.tip || n.label); })
       .nodeCanvasObject(drawNode)
       .nodePointerAreaPaint(paintArea)
@@ -536,6 +563,7 @@
 
     function openNode(n) {
       if (n.kind === 'me') { releaseAll(); return; }
+      if (n.toggle) { toggleGroup(n); return; }
       if (n.page) { window.location.href = n.page; return; }
       if (n.href) {
         if (n.href.indexOf('mailto:') === 0) window.location.href = n.href;
@@ -543,6 +571,48 @@
         return;
       }
       reveal(n.el || document.querySelector(n.target));
+    }
+
+    // Open or close a toggle node ("Past"): its children grow out of it, on the
+    // side away from its parent, while the rest of the graph is held still.
+    function toggleGroup(t) {
+      t.open = !t.open;
+      var parent = nodes.filter(function (n) { return t.neighbors.has(n) && !n.past && n !== t; })[0];
+      var dx = parent ? t.x - parent.x : 1, dy = parent ? t.y - parent.y : 0;
+      var len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
+      var kids = allNodes.filter(function (n) { return n.past; });
+      kids.forEach(function (n, i) {
+        n.hidden = !t.open;
+        if (!t.open) return;
+        var spread = (i - (kids.length - 1) / 2) * 14;          // fan out sideways
+        n.x = t.x + dx * 28 - dy * spread; n.y = t.y + dy * 28 + dx * spread;
+        n.vx = n.vy = 0; n.fx = n.fy = undefined; n.pinned = false;
+      });
+      if (hoverNode && hoverNode.hidden) setHover(null);
+
+      // Hold everything else in place while the new nodes settle. The centring
+      // force is paused too: with the rest held, it would drag only the new nodes.
+      var held = shown().nodes.filter(function (n) { return !n.past && n.fx == null; });
+      held.forEach(function (n) { n.fx = n.x; n.fy = n.y; });
+      var centre = g.d3Force('center');
+      g.d3Force('center', null);
+      g.graphData({ nodes: nodes, links: links });
+      setTimeout(function () {
+        held.forEach(function (n) { if (!n.pinned) { n.fx = undefined; n.fy = undefined; } });
+        g.d3Force('center', centre);
+        if (allInView(kids)) return;
+        fit(500);
+      }, 1200);
+    }
+
+    // Are all these (visible) nodes inside the graph's view?
+    function allInView(list) {
+      var W = container.clientWidth, H = container.clientHeight;
+      return list.every(function (n) {
+        if (n.hidden) return true;
+        var s = g.graph2ScreenCoords(n.x, n.y);
+        return s.x > 30 && s.x < W - 70 && s.y > 30 && s.y < H - 50;
+      });
     }
 
     function releaseAll() {
