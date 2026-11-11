@@ -379,7 +379,7 @@ html:not(.js) .graph-panel, html:not(.js) .graph-controls, html:not(.js) .graph-
 .group-title h1 { font-size: clamp(2rem, 1.5rem + 2vw, 2.8rem); letter-spacing: -0.01em; }
 .group-cloud { width: 52px; height: 52px; flex: none; fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.4; stroke-linejoin: round; }
 
-.member-grid { list-style: none; padding: 0; margin: 1.25rem 0 0; display: grid; gap: 16px; }
+.member-grid { list-style: none; padding: 0; margin: 1.25rem 0 0; display: grid; gap: 16px; align-items: start; }
 @media (min-width: 640px) { .member-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 960px) { .member-grid { grid-template-columns: repeat(3, 1fr); } }
 /* sections with no members yet are hidden */
@@ -404,3 +404,23 @@ html:not(.js) .graph-panel, html:not(.js) .graph-controls, html:not(.js) .graph-
 .member-links { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.875rem; }
 .member-pi { max-width: 640px; margin-top: 1.25rem; }
 .member-pi .member-photo { width: 96px; height: 96px; }
+
+/* Member cards built from members/*.json */
+.members-status { padding: 28px 0; border-bottom: 0; }
+.members-message { color: var(--muted); }
+.members-message.members-error { color: var(--text); background: var(--accent-soft); border-radius: var(--radius); padding: 14px 16px; }
+.member-info { min-width: 0; flex: 1; }
+.member-now { margin-top: 4px; font-size: 0.875rem; color: var(--muted); font-style: italic; }
+.member-details { margin-top: 10px; font-size: 0.875rem; }
+.member-details summary {
+  cursor: pointer; color: var(--accent); font-weight: 500; width: fit-content;
+  list-style: none; display: inline-flex; align-items: center; gap: 4px;
+}
+.member-details summary::-webkit-details-marker { display: none; }
+.member-details summary::after { content: "+"; font-weight: 600; }
+.member-details[open] summary::after { content: "\2212"; }
+.member-more { margin-top: 8px; color: var(--muted); }
+.member-more p { margin: 0 0 8px; }
+.member-more h4 { margin: 10px 0 4px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text); }
+.member-more ul { margin: 0; padding-left: 1.1em; }
+.member-more li { margin: 2px 0; }

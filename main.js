@@ -51,16 +51,6 @@
     });
   }
 
-  /* Group page: members without a photo get their initials instead. */
-  document.querySelectorAll('.member').forEach(function (el) {
-    if (el.querySelector('.member-photo')) return;
-    var name = (el.querySelector('h3') || {}).textContent || '';
-    var initials = name.trim().split(/\s+/).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
-    var div = document.createElement('div');
-    div.className = 'member-initials'; div.setAttribute('aria-hidden', 'true'); div.textContent = initials;
-    el.insertBefore(div, el.firstChild);
-  });
-
   /* Scroll to an element and briefly highlight it. */
   function reveal(el) {
     if (!el) return;

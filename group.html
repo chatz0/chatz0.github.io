@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=9">
   <script>
     document.documentElement.classList.add('js');
     try {
@@ -76,102 +76,48 @@
     </section>
 
     <!--
-      MEMBERS
-      To add someone, copy this block into the right list below and edit it:
-
-        <li class="member">
-          <img class="member-photo" src="assets/people/firstname-lastname.jpg" width="96" height="96" alt="">
-          <div>
-            <h3>First Last</h3>
-            <p class="member-role">PhD student, 2023–</p>
-            <p class="member-topic">One line on their research topic</p>
-            <p class="member-links"><a href="mailto:...">Email</a> <a href="https://...">Website</a></p>
-          </div>
-        </li>
-
-      No photo? Leave out the <img> line and initials are shown instead.
-      Sections with an empty list are hidden automatically.
+      MEMBERS are not written here: they're built from the JSON files in members/,
+      listed in members/index.json. See members/README.md.
     -->
+    <section class="section members-status" aria-live="polite">
+      <div class="wrap">
+        <p class="members-message" id="members-message">Loading lab members&hellip;</p>
+        <noscript><p class="members-message">The member list needs JavaScript.</p></noscript>
+      </div>
+    </section>
 
     <section class="section member-section" aria-labelledby="postdocs-h">
       <div class="wrap">
         <h2 id="postdocs-h">Postdoctoral researchers</h2>
-        <ul class="member-grid">
-        </ul>
+        <ul class="member-grid" data-group="postdocs"></ul>
       </div>
     </section>
 
     <section class="section member-section" aria-labelledby="phd-h">
       <div class="wrap">
         <h2 id="phd-h">PhD students</h2>
-        <ul class="member-grid">
-          <li class="member">
-            <div>
-              <h3>Joana Tirana</h3>
-              <p class="member-role">PhD student</p>
-              <p class="member-topic">Split and federated learning at the edge</p>
-            </div>
-          </li>
-          <li class="member">
-            <div>
-              <h3>Andreas Chouliaras</h3>
-              <p class="member-role">PhD student</p>
-              <p class="member-topic">Human feedback in AI alignment</p>
-            </div>
-          </li>
-          <li class="member">
-            <div>
-              <h3>Theodoros Aslanidis</h3>
-              <p class="member-role">PhD student</p>
-            </div>
-          </li>
-          <li class="member">
-            <div>
-              <h3>Yuxuan Wu</h3>
-              <p class="member-role">PhD student</p>
-            </div>
-          </li>
-          <li class="member">
-            <div>
-              <h3>Emile</h3>
-              <p class="member-role">PhD student</p>
-            </div>
-          </li>
-          <li class="member">
-            <div>
-              <h3>Ioannis Panagiotidis</h3>
-              <p class="member-role">PhD student</p>
-            </div>
-          </li>
-        </ul>
+        <ul class="member-grid" data-group="phd"></ul>
       </div>
     </section>
 
     <section class="section member-section" aria-labelledby="ra-h">
       <div class="wrap">
         <h2 id="ra-h">Research assistants &amp; MSc students</h2>
-        <ul class="member-grid">
-          <li class="member">
-            <div>
-              <h3>Vlasis Koutsos</h3>
-              <p class="member-role">Research assistant</p>
-            </div>
-          </li>
-          <li class="member">
-            <div>
-              <h3>Moin Hussain Moti</h3>
-              <p class="member-role">Research assistant</p>
-            </div>
-          </li>
-        </ul>
+        <ul class="member-grid" data-group="ra"></ul>
+      </div>
+    </section>
+
+    <section class="section member-section" aria-labelledby="visitors-h">
+      <div class="wrap">
+        <h2 id="visitors-h">Visiting researchers</h2>
+        <ul class="member-grid" data-group="visitors"></ul>
       </div>
     </section>
 
     <section class="section member-section" aria-labelledby="alumni-h">
       <div class="wrap">
         <h2 id="alumni-h">Alumni</h2>
-        <ul class="member-grid">
-        </ul>
+        <ul class="member-grid" data-group="alumni"></ul>
       </div>
     </section>
 
@@ -193,6 +139,7 @@
     </div>
   </footer>
 
-  <script src="main.js?v=8" defer></script>
+  <script src="main.js?v=9" defer></script>
+  <script src="group.js?v=9" defer></script>
 </body>
 </html>
