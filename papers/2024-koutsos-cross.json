@@ -1,0 +1,19 @@
+{
+  "$schema": "./_schema.json",
+  "title": "Cross Ledger Transaction Consistency for Financial Auditing",
+  "authors": [
+    "Vlasis Koutsos",
+    "Xiangan Tian",
+    "Dimitrios Papadopoulos",
+    "Dimitris Chatzopoulos"
+  ],
+  "year": 2024,
+  "type": "conference",
+  "venue": "AFT 2024, Advances in Financial Technologies (LIPIcs 316)",
+  "doi": "10.4230/LIPIcs.AFT.2024.4",
+  "eprint": "https://eprint.iacr.org/2024/1155",
+  "themes": [
+    "ledgers"
+  ],
+  "selected": true
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "./_schema.json",
+  "title": "Mobile Augmented Reality Survey: From Where We Are to Where We Go",
+  "authors": [
+    "Dimitris Chatzopoulos",
+    "Carlos Bermejo",
+    "Zhanpeng Huang",
+    "Pan Hui"
+  ],
+  "year": 2017,
+  "type": "journal",
+  "venue": "IEEE Access",
+  "themes": [
+    "mobile"
+  ],
+  "selected": true
+}

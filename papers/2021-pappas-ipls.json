@@ -1,0 +1,19 @@
+{
+  "$schema": "./_schema.json",
+  "title": "IPLS: A Framework for Decentralized Federated Learning",
+  "authors": [
+    "Christodoulos Pappas",
+    "Dimitris Chatzopoulos",
+    "Spyros Lalis",
+    "Manolis Vavalis"
+  ],
+  "year": 2021,
+  "type": "conference",
+  "venue": "IFIP Networking 2021",
+  "doi": "10.23919/IFIPNetworking52078.2021.9472790",
+  "arxiv": "2101.01901",
+  "themes": [
+    "learning"
+  ],
+  "selected": true
+}

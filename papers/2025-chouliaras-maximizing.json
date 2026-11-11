@@ -1,0 +1,16 @@
+{
+  "$schema": "./_schema.json",
+  "title": "Maximizing the Efficiency of Human Feedback in AI Alignment: A Comparative Analysis",
+  "authors": [
+    "Andreas Chouliaras",
+    "Dimitris Chatzopoulos"
+  ],
+  "year": 2025,
+  "type": "preprint",
+  "venue": "arXiv preprint",
+  "arxiv": "2511.12796",
+  "themes": [
+    "learning"
+  ],
+  "selected": true
+}

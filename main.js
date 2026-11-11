@@ -103,7 +103,7 @@
     // the universities.
     var FOLDS = {
       research: 'Research themes and papers (click to show or hide)',
-      publications: 'Papers, Google Scholar and DBLP (click to show or hide)',
+      publications: 'Full list, selected papers, Google Scholar and DBLP (click to show or hide)',
       background: 'Universities and research visits (click to show or hide)'
     };
     sections.forEach(function (s) {
@@ -167,8 +167,10 @@
       link(past ? 'c:past' : 's:teaching', 'c:' + i, past ? 35 : 40);
     });
 
-    // Publications opens: the paper list on this page, Google Scholar and DBLP.
-    node('x:papers', 'Selected papers', 'theme', { target: '#publications', tip: 'Go to the selected publications below', under: 's:publications' });
+    // Publications opens: the full list page, the selected papers below, Google Scholar and DBLP.
+    node('x:full', 'Full list', 'theme', { page: 'publications.html', tip: 'All publications, by year', under: 's:publications' });
+    link('s:publications', 'x:full', 50);
+    node('x:papers', 'Selected', 'theme', { target: '#publications', tip: 'Go to the selected publications below', under: 's:publications' });
     link('s:publications', 'x:papers', 50);
     [['Google Scholar', 'https://scholar.google.com/citations?user=vXz1bl4AAAAJ&hl=en'],
      ['DBLP', 'https://dblp.org/pid/135/6249.html']

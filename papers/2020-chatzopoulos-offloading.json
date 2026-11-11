@@ -1,0 +1,17 @@
+{
+  "$schema": "./_schema.json",
+  "title": "Offloading Computations to Mobile Devices and Cloudlets via an Upgraded NFC Communication Protocol",
+  "authors": [
+    "Dimitris Chatzopoulos",
+    "Carlos Bermejo",
+    "Sokol Kosta",
+    "Pan Hui"
+  ],
+  "year": 2020,
+  "type": "journal",
+  "venue": "IEEE Transactions on Mobile Computing 19(3)",
+  "themes": [
+    "mobile"
+  ],
+  "selected": true
+}

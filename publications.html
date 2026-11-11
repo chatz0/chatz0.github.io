@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Publications · Dimitris Chatzopoulos</title>
+  <meta name="description" content="Full list of publications by Dimitris Chatzopoulos, School of Computer Science, University College Dublin.">
+  <meta name="theme-color" content="#f7f6f2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121614" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f6b5c'/%3E%3Ctext x='16' y='22' font-family='Courier New,monospace' font-weight='bold' font-size='17' fill='%23fff' text-anchor='middle'%3EDC%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css?v=25">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  </script>
+</head>
+<body class="group-page papers-page">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header scrolled">
+    <div class="wrap wrap-wide header-inner">
+      <a class="brand" href="index.html">Dimitris Chatzopoulos</a>
+      <nav class="site-nav" aria-label="Site">
+        <a href="index.html">Home</a>
+        <a href="index.html#research">Research</a>
+                <a href="publications.html" class="active" aria-current="page">Publications</a>
+        <a href="group.html">DAIS Lab</a>
+      </nav>
+      <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="section group-hero">
+      <div class="wrap">
+        <a class="back-link" href="index.html#publications">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Back to selected publications
+        </a>
+        <h1 class="papers-title">Publications</h1>
+        <p class="section-intro">All papers, newest first. Also on
+          <a href="https://scholar.google.com/citations?user=vXz1bl4AAAAJ&amp;hl=en" rel="noopener">Google Scholar</a> and
+          <a href="https://dblp.org/pid/135/6249.html" rel="noopener">DBLP</a>.</p>
+        <div class="paper-filters" id="paper-filters" role="group" aria-label="Filter by type" hidden></div>
+      </div>
+    </section>
+
+    <section class="section papers-section" aria-live="polite">
+      <div class="wrap">
+        <!-- Filled in by papers.js from papers/*.json (listed in papers/index.json) -->
+        <p class="members-message" id="papers-message">Loading publications&hellip;</p>
+        <noscript><p class="members-message">The publication list needs JavaScript. See it on
+          <a href="https://dblp.org/pid/135/6249.html">DBLP</a>.</p></noscript>
+        <div id="paper-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>&copy; <span id="year">2026</span> Dimitris Chatzopoulos &middot; <a href="index.html">Home</a></p>
+    </div>
+  </footer>
+
+  <script src="main.js?v=25" defer></script>
+  <script src="papers.js?v=25" defer></script>
+</body>
+</html>
