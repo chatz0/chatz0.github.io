@@ -145,6 +145,7 @@
       node('c:' + i, el.getAttribute('data-short'), 'place', {
         href: a ? a.href : null, target: '#teaching',
         tip: (a ? a.textContent.trim() : '') + (meta ? ' \u00b7 ' + meta.textContent.trim() : '')
+          + (el.hasAttribute('data-past') ? ' (previously taught)' : '')
       });
       link('s:teaching', 'c:' + i, 40);
     });

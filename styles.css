@@ -469,3 +469,4 @@ html:not(.js) .graph-panel, html:not(.js) .graph-controls, html:not(.js) .graph-
 .courses li { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; }
 .course-title { font-weight: 600; }
 .course-meta { color: var(--muted); font-size: 0.875rem; }
+.courses-past-h { margin-top: 1.75rem; font-size: 1rem; color: var(--muted); }
