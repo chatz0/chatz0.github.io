@@ -83,6 +83,7 @@
     if (!ul) return;
     SITE.courses.filter(function (c) { return !!c.past === pair[1]; }).forEach(function (c) {
       var li = make('li', 'course');
+      li.id = c.code.toLowerCase();
       var a = make('a', 'course-title', c.title);
       a.href = c.url; a.rel = 'noopener';
       li.appendChild(a);
@@ -99,11 +100,14 @@
   });
 
   // Arriving at page.html#some-id (e.g. from the graph): highlight that item.
-  if (location.hash.length > 1) {
-    var hashTarget = null;
-    try { hashTarget = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch (e) {}
-    if (hashTarget && hashTarget.classList.contains('theme')) setTimeout(function () { reveal(hashTarget); }, 250);
+  function revealHash() {
+    if (location.hash.length < 2) return;
+    var t = null;
+    try { t = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch (e) {}
+    if (t) reveal(t);
   }
+  setTimeout(revealHash, 250);
+  window.addEventListener('hashchange', revealHash);
 
   /* ---------- Selected papers, for the graph ----------
      The papers in papers/ marked "selected": true, newest first. Opened straight
@@ -198,11 +202,11 @@
 
     // Service opens Research (programme committees, reviewing: details to come)
     // and Academic (roles at UCD).
-    node('sv:research', 'Research', 'theme', { under: 's:service', page: 'service.html', tip: 'Research service: programme committees, reviewing (details to come)' });
+    node('sv:research', 'Research', 'theme', { under: 's:service', page: 'service.html#research', tip: 'Research service: programme committees, reviewing' });
     link('s:service', 'sv:research', 45);
     node('sv:academic', 'Academic', 'theme', { toggle: true, under: 's:service', tip: 'Academic service (click to show or hide)' });
     link('s:service', 'sv:academic', 45);
-    node('sv:director', 'Programme Director', 'place', { under: 'sv:academic', page: 'service.html',
+    node('sv:director', 'Programme Director', 'place', { under: 'sv:academic', page: 'service.html#programme-director',
       tip: 'Programme Director, Higher Diploma in Computer Science, UCD' });
     link('sv:academic', 'sv:director', 40);
 
@@ -213,7 +217,7 @@
     node('r:projects', 'Projects', 'theme', { toggle: true, under: 's:research', tip: 'Research projects (click to show or hide)' });
     link('s:research', 'r:projects', 45);
     ['European', 'Industrial', 'Irish'].forEach(function (kind) {
-      node('r:' + kind.toLowerCase(), kind, 'theme', { under: 'r:projects', tip: kind + ' projects (details to come)' });
+      node('r:' + kind.toLowerCase(), kind, 'theme', { under: 'r:projects', page: 'research.html#projects-' + kind.toLowerCase(), tip: kind + ' projects' });
       link('r:projects', 'r:' + kind.toLowerCase(), 40);
     });
 
@@ -240,7 +244,7 @@
      ['Thessaly', 'University of Thessaly'], ['EPFL', 'EPFL (visit, 2014)'],
      ['Tsinghua', 'Tsinghua University (visit, 2016)'], ['Cambridge', 'University of Cambridge (visit, 2016)']
     ].forEach(function (p) {
-      node('i:' + p[0], p[0], 'place', { page: 'background.html', tip: p[1], under: 's:background' });
+      node('i:' + p[0], p[0], 'place', { page: 'background.html#' + p[0].toLowerCase(), tip: p[1], under: 's:background' });
       link('s:background', 'i:' + p[0], 50);
     });
     // The PhD thesis was on incentive and reputation mechanisms.
@@ -254,7 +258,7 @@
     }
     SITE.courses.forEach(function (c, i) {
       node('c:' + i, c.short, 'place', {
-        href: c.url, under: c.past ? 'c:past' : null,
+        page: 'teaching.html#' + c.code.toLowerCase(), under: c.past ? 'c:past' : null,
         tip: c.title + ' \u00b7 ' + c.code + ' \u00b7 ' + c.level + (c.past ? ' (previously taught)' : '')
       });
       link(c.past ? 'c:past' : 's:teaching', 'c:' + i, c.past ? 35 : 40);
@@ -277,7 +281,7 @@
 
     // Email shows the address pattern and opens the Contact page: the full
     // address isn't written anywhere in this script.
-    node('x:Email', 'Email', 'profile', { page: 'contact.html', tip: 'Email: first_name.last_name@ucd.ie' });
+    node('x:Email', 'Email', 'profile', { page: 'contact.html#email', tip: 'Email: first_name.last_name@ucd.ie' });
     link('s:contact', 'x:Email', 40);
 
     // The research group (DAIS Lab): a cloud linked only to the centre photo; opens its own page.

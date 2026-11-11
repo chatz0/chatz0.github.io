@@ -506,3 +506,5 @@ html:not(.js) .graph-panel, html:not(.js) .graph-controls, html:not(.js) .graph-
 .page-next { margin-top: 1.75rem; }
 .service-list li { padding: 10px 0; }
 .contact .links { margin-top: 1.5rem; }
+.to-come { color: var(--muted); margin-bottom: 1.5rem; }
+#projects ~ .sub-h { margin-top: 1.25rem; }
