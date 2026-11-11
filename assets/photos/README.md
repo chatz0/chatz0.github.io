@@ -19,5 +19,6 @@ Only the web-sized copies in `web/` and `photos.js`. Your originals stay on your
 `.gitignore` keeps them out of the repository. The copies have the camera's hidden data
 (including GPS location) removed.
 
-Each page shows up to three photos: those pinned to it first, then unpinned ones, which are
+Wide panoramas (more than about twice as wide as tall) run across the text column under the
+page title; other photos go in the side column. Each page shows up to three photos: those pinned to it first, then unpinned ones, which are
 spread across the pages so the same photo doesn't repeat everywhere.

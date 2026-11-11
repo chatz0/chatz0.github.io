@@ -537,4 +537,6 @@ html:not(.js) .graph-panel, html:not(.js) .graph-controls, html:not(.js) .graph-
     width: 206px; max-width: none; margin: 0; padding: 0;
   }
 }
-@media print { .photo-rail { display: none; } }
+.photo-banners { padding-top: 40px; display: grid; gap: 24px; }
+.photo-banners .photo figcaption { font-size: 0.85rem; }
+@media print { .photo-rail, .photo-banners { display: none; } }

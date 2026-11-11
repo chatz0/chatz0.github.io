@@ -151,9 +151,7 @@
     mine = mine.slice(0, 3);
     if (!mine.length) return;
 
-    var rail = make('aside', 'photo-rail');
-    rail.setAttribute('aria-label', 'Photos');
-    mine.forEach(function (p) {
+    function figure(p) {
       var fig = make('figure', 'photo');
       var a = document.createElement('a');
       a.href = 'assets/photos/web/' + encodeURIComponent(p.file);
@@ -163,8 +161,23 @@
       if (p.width && p.height) { img.width = p.width; img.height = p.height; }
       a.appendChild(img); fig.appendChild(a);
       if (p.caption) fig.appendChild(make('figcaption', '', p.caption));
-      rail.appendChild(fig);
-    });
+      return fig;
+    }
+
+    // Panoramas are too small in the side column: they run across the text
+    // column instead, just under the page's title section.
+    var isWide = function (p) { return p.width && p.height && p.width / p.height > 1.8; };
+    var banners = mine.filter(isWide), others = mine.filter(function (p) { return !isWide(p); });
+    if (banners.length && main.firstElementChild) {
+      var strip = make('div', 'wrap photo-banners');
+      banners.forEach(function (p) { strip.appendChild(figure(p)); });
+      main.firstElementChild.insertAdjacentElement('afterend', strip);
+    }
+    if (!others.length) return;
+
+    var rail = make('aside', 'photo-rail');
+    rail.setAttribute('aria-label', 'Photos');
+    others.forEach(function (p) { rail.appendChild(figure(p)); });
     main.appendChild(rail);
     main.classList.add('has-photos');
     // In the side column the photos float beside the text, so make sure a short

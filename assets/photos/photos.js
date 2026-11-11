@@ -8,17 +8,17 @@
 window.PHOTOS = [
   {
     "file": "dais-group.jpg",
-    "caption": "",
-    "alt": "",
-    "page": "",
+    "caption": "The DAIS Lab",
+    "alt": "Ten members of the lab standing in a row in a university building",
+    "page": "group",
     "width": 1200,
     "height": 518
   },
   {
     "file": "phd-defense.jpg",
-    "caption": "",
-    "alt": "",
-    "page": "",
+    "caption": "PhD defence, HKUST",
+    "alt": "Dimitris presenting the final slide of his PhD defence, which shows a group photo and the words Thank you",
+    "page": "background",
     "width": 1196,
     "height": 511
   }
