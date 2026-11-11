@@ -176,7 +176,7 @@
     // and papers, Publications to the paper list, Scholar and DBLP, Background to
     // the universities.
     var FOLDS = {
-      research: 'Research themes and papers (click to show or hide)',
+      research: 'Interests and projects (click to show or hide)',
       publications: 'Full list, selected papers, Google Scholar and DBLP (click to show or hide)',
       background: 'Universities and research visits (click to show or hide)'
     };
@@ -187,11 +187,22 @@
       link('me', 's:' + s[0], 70);
     });
 
+    // Research opens Interests (the research themes, each with its papers) and
+    // Projects (by funding source; details still to come).
+    node('r:interests', 'Interests', 'theme', { toggle: true, under: 's:research', tip: 'Research interests and their papers (click to show or hide)' });
+    link('s:research', 'r:interests', 45);
+    node('r:projects', 'Projects', 'theme', { toggle: true, under: 's:research', tip: 'Research projects (click to show or hide)' });
+    link('s:research', 'r:projects', 45);
+    ['European', 'Industrial', 'Irish'].forEach(function (kind) {
+      node('r:' + kind.toLowerCase(), kind, 'theme', { under: 'r:projects', tip: kind + ' projects (details to come)' });
+      link('r:projects', 'r:' + kind.toLowerCase(), 40);
+    });
+
     document.querySelectorAll('.theme[data-theme-id]').forEach(function (el) {
       var id = el.getAttribute('data-theme-id');
       var title = el.querySelector('h3').textContent.trim();
-      node('t:' + id, title, 'theme', { group: id, el: el, tip: title, under: 's:research' });
-      link('s:research', 't:' + id, 55);
+      node('t:' + id, title, 'theme', { group: id, el: el, tip: title, under: 'r:interests' });
+      link('r:interests', 't:' + id, 55);
     });
 
     document.querySelectorAll('.pub[data-short]').forEach(function (el, i) {
@@ -201,7 +212,7 @@
       var venue = el.querySelector('.pub-venue');
       node(id, el.getAttribute('data-short'), 'paper', {
         group: themes[0], el: el,
-        under: themes.some(function (t) { return document.querySelector('[data-theme-id="' + t + '"]'); }) ? 's:research' : 's:publications',
+        under: themes.some(function (t) { return document.querySelector('[data-theme-id="' + t + '"]'); }) ? 'r:interests' : 's:publications',
         tip: el.querySelector('.pub-title').textContent.trim() +
              (venue ? ' · ' + venue.textContent.trim() : '') +
              (year ? ' (' + year.textContent.trim() + ')' : '')
@@ -682,7 +693,7 @@
         else window.open(n.href, '_blank', 'noopener');
         return;
       }
-      reveal(n.el || document.querySelector(n.target));
+      if (n.el || n.target) reveal(n.el || document.querySelector(n.target));   // e.g. project leaves have neither yet
     }
 
     // Open or close a toggle node: its children grow out of it, on the side away
