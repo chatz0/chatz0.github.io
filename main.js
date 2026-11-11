@@ -98,15 +98,22 @@
       ['research', 'Research'], ['publications', 'Publications'], ['background', 'Background'],
       ['teaching', 'Teaching'], ['contact', 'Contact']
     ];
+    // Research and Background fold out (+/-) to show their themes, papers and universities.
+    var FOLDS = {
+      research: 'Research themes and papers (click to show or hide)',
+      background: 'Universities and research visits (click to show or hide)'
+    };
     sections.forEach(function (s) {
-      node('s:' + s[0], s[1], 'section', { target: '#' + s[0], tip: 'Go to ' + s[1] });
+      node('s:' + s[0], s[1], 'section', FOLDS[s[0]]
+        ? { target: '#' + s[0], toggle: true, tip: FOLDS[s[0]] }
+        : { target: '#' + s[0], tip: 'Go to ' + s[1] });
       link('me', 's:' + s[0], 70);
     });
 
     document.querySelectorAll('.theme[data-theme-id]').forEach(function (el) {
       var id = el.getAttribute('data-theme-id');
       var title = el.querySelector('h3').textContent.trim();
-      node('t:' + id, title, 'theme', { group: id, el: el, tip: title });
+      node('t:' + id, title, 'theme', { group: id, el: el, tip: title, under: 's:research' });
       link('s:research', 't:' + id, 55);
     });
 
@@ -117,6 +124,7 @@
       var venue = el.querySelector('.pub-venue');
       node(id, el.getAttribute('data-short'), 'paper', {
         group: themes[0], el: el,
+        under: themes.some(function (t) { return document.querySelector('[data-theme-id="' + t + '"]'); }) ? 's:research' : null,
         tip: el.querySelector('.pub-title').textContent.trim() +
              (venue ? ' · ' + venue.textContent.trim() : '') +
              (year ? ' (' + year.textContent.trim() + ')' : '')
@@ -132,7 +140,7 @@
      ['Thessaly', 'University of Thessaly'], ['EPFL', 'EPFL (visit, 2014)'],
      ['Tsinghua', 'Tsinghua University (visit, 2016)'], ['Cambridge', 'University of Cambridge (visit, 2016)']
     ].forEach(function (p) {
-      node('i:' + p[0], p[0], 'place', { target: '#background', tip: p[1] });
+      node('i:' + p[0], p[0], 'place', { target: '#background', tip: p[1], under: 's:background' });
       link('s:background', 'i:' + p[0], 50);
     });
     // The PhD thesis was on incentive and reputation mechanisms.
@@ -149,7 +157,7 @@
       var meta = el.querySelector('.course-meta');
       var past = el.hasAttribute('data-past');
       node('c:' + i, el.getAttribute('data-short'), 'place', {
-        href: a ? a.href : null, target: '#teaching', past: past, hidden: past,
+        href: a ? a.href : null, target: '#teaching', under: past ? 'c:past' : null,
         tip: (a ? a.textContent.trim() : '') + (meta ? ' \u00b7 ' + meta.textContent.trim() : '')
           + (past ? ' (previously taught)' : '')
       });
@@ -178,14 +186,23 @@
       a.links.add(l); b.links.add(l);
     });
 
-    // The graph is only given the visible nodes and links; hidden ones (past
-    // courses while "Past" is closed) take no part in the layout.
+    // Fold-out groups: a node `under` a toggle shows only while that toggle (and
+    // any toggle above it) is open. The graph is only given the visible nodes and
+    // links, so hidden ones take no part in the layout.
     var allNodes = nodes, allLinks = links;
     function idOf(x) { return typeof x === 'object' ? x.id : x; }
+    function isVisible(n) {
+      for (var u = n.under; u; u = byId[u].under) if (!byId[u].open) return false;
+      return true;
+    }
     function shown() {
-      nodes = allNodes.filter(function (n) { return !n.hidden; });
-      links = allLinks.filter(function (l) { return !byId[idOf(l.source)].hidden && !byId[idOf(l.target)].hidden; });
+      nodes = allNodes.filter(isVisible);
+      links = allLinks.filter(function (l) { return isVisible(byId[idOf(l.source)]) && isVisible(byId[idOf(l.target)]); });
       return { nodes: nodes, links: links };
+    }
+    function isUnder(n, t) {
+      for (var u = n.under; u; u = byId[u].under) if (u === t.id) return true;
+      return false;
     }
 
     var hoverNode = null;
@@ -400,8 +417,15 @@
     var fitted = false, touched = false;
     function interacted() { touched = true; }
     container.addEventListener('pointerdown', interacted);
+    var refitWhenSettled = null;
     g.onEngineStop(function () {
       if (!fitted) { fitted = true; if (!touched) fit(reduceMotion.matches ? 0 : 400); }
+      // After a group opens or closes, the layout keeps relaxing for a moment.
+      // Once it's at rest, re-fit if needed: always on phones, where it's tight.
+      if (refitWhenSettled) {
+        var list = refitWhenSettled; refitWhenSettled = null;
+        if (container.clientWidth < 640 || !allInView(list)) fit(400);
+      }
     });
     // Fit early too, so the first frames already look composed.
     setTimeout(function () { if (!fitted) fit(0); }, 350);
@@ -573,26 +597,41 @@
       reveal(n.el || document.querySelector(n.target));
     }
 
-    // Open or close a toggle node ("Past"): its children grow out of it, on the
-    // side away from its parent, while the rest of the graph is held still.
+    // Open or close a toggle node: its children grow out of it, on the side away
+    // from its parent, while the rest of the graph is held still.
     function toggleGroup(t) {
+      var before = new Set(nodes);
       t.open = !t.open;
-      var parent = nodes.filter(function (n) { return t.neighbors.has(n) && !n.past && n !== t; })[0];
-      var dx = parent ? t.x - parent.x : 1, dy = parent ? t.y - parent.y : 0;
-      var len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
-      var kids = allNodes.filter(function (n) { return n.past; });
-      kids.forEach(function (n, i) {
-        n.hidden = !t.open;
-        if (!t.open) return;
-        var spread = (i - (kids.length - 1) / 2) * 14;          // fan out sideways
-        n.x = t.x + dx * 28 - dy * spread; n.y = t.y + dy * 28 + dx * spread;
-        n.vx = n.vy = 0; n.fx = n.fy = undefined; n.pinned = false;
-      });
-      if (hoverNode && hoverNode.hidden) setHover(null);
+      shown();
+      if (hoverNode && !isVisible(hoverNode)) setHover(null);
+      var added = nodes.filter(function (n) { return !before.has(n); });
+
+      if (added.length) {
+        var parent = nodes.filter(function (n) { return t.neighbors.has(n) && !isUnder(n, t) && n !== t; })[0];
+        var dx = parent ? t.x - parent.x : 1, dy = parent ? t.y - parent.y : 0;
+        var len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
+        var placed = new Set([t]);
+        // Direct children fan out from the toggle...
+        var direct = added.filter(function (n) { return n.neighbors.has(t); });
+        direct.forEach(function (n, i) {
+          var spread = (i - (direct.length - 1) / 2) * 16;
+          n.x = t.x + dx * 30 - dy * spread; n.y = t.y + dy * 30 + dx * spread;
+          placed.add(n);
+        });
+        // ...and their own children start next to them.
+        added.forEach(function (n) {
+          if (placed.has(n)) return;
+          var p = Array.from(n.neighbors).filter(function (q) { return placed.has(q) && q !== n; })[0] || t;
+          n.x = p.x + dx * 18 + (Math.random() - 0.5) * 12; n.y = p.y + dy * 18 + (Math.random() - 0.5) * 12;
+          placed.add(n);
+        });
+        added.forEach(function (n) { n.vx = n.vy = 0; n.fx = n.fy = undefined; n.pinned = false; });
+      }
 
       // Hold everything else in place while the new nodes settle. The centring
       // force is paused too: with the rest held, it would drag only the new nodes.
-      var held = shown().nodes.filter(function (n) { return !n.past && n.fx == null; });
+      var addedSet = new Set(added);
+      var held = nodes.filter(function (n) { return !addedSet.has(n) && n.fx == null; });
       held.forEach(function (n) { n.fx = n.x; n.fy = n.y; });
       var centre = g.d3Force('center');
       g.d3Force('center', null);
@@ -600,8 +639,8 @@
       setTimeout(function () {
         held.forEach(function (n) { if (!n.pinned) { n.fx = undefined; n.fy = undefined; } });
         g.d3Force('center', centre);
-        if (allInView(kids)) return;
-        fit(500);
+        if (!allInView(added)) fit(500);
+        refitWhenSettled = added;
       }, 1200);
     }
 
@@ -609,7 +648,7 @@
     function allInView(list) {
       var W = container.clientWidth, H = container.clientHeight;
       return list.every(function (n) {
-        if (n.hidden) return true;
+        if (!isVisible(n)) return true;
         var s = g.graph2ScreenCoords(n.x, n.y);
         return s.x > 30 && s.x < W - 70 && s.y > 30 && s.y < H - 50;
       });
