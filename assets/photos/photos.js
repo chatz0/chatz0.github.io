@@ -5,4 +5,21 @@
      "alt":     what the photo shows, for screen readers
      "page":    pin it to one page: "research", "background", "teaching", "service",
                 "contact" or "group". Leave "" to let the site spread photos across pages. */
-window.PHOTOS = [];
+window.PHOTOS = [
+  {
+    "file": "dais-group.jpg",
+    "caption": "",
+    "alt": "",
+    "page": "",
+    "width": 1200,
+    "height": 518
+  },
+  {
+    "file": "phd-defense.jpg",
+    "caption": "",
+    "alt": "",
+    "page": "",
+    "width": 1196,
+    "height": 511
+  }
+];
