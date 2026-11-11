@@ -289,6 +289,9 @@
     // any toggle above it) is open. The graph is only given the visible nodes and
     // links, so hidden ones take no part in the layout.
     var allNodes = nodes, allLinks = links;
+    allNodes.forEach(function (n) {
+      if (n.toggle) n.childCount = allNodes.filter(function (c) { return c.under === n.id; }).length;
+    });
     function idOf(x) { return typeof x === 'object' ? x.id : x; }
     function isVisible(n) {
       for (var u = n.under; u; u = byId[u].under) if (!byId[u].open) return false;
@@ -328,6 +331,25 @@
       return p.place;
     }
 
+    // Fold-out nodes: while folded, small "satellite" dots orbit them, one per
+    // hidden child (up to four); once open, a faint ring says they fold back.
+    function drawToggleMark(n, ctx, r, c) {
+      ctx.shadowBlur = 0;
+      if (!n.open) {
+        var k = Math.min(n.childCount || 1, 4);
+        var dist = r * 1.75, dot = Math.max(r * 0.22, 1.2), step = 0.5;
+        var base = -Math.PI / 4 - (k - 1) * step / 2;           // a tight arc at the top right
+        ctx.fillStyle = c;
+        for (var i = 0; i < k; i++) {
+          var a = base + i * step;
+          ctx.beginPath(); ctx.arc(n.x + Math.cos(a) * dist, n.y + Math.sin(a) * dist, dot, 0, Math.PI * 2); ctx.fill();
+        }
+      } else {
+        ctx.strokeStyle = c; ctx.globalAlpha *= 0.45; ctx.lineWidth = r * 0.18;
+        ctx.beginPath(); ctx.arc(n.x, n.y, r * 1.6, 0, Math.PI * 2); ctx.stroke();
+      }
+    }
+
     function drawNode(n, ctx, scale) {
       var p = pal();
       var r = RADIUS[n.kind];
@@ -363,17 +385,7 @@
           ctx.lineWidth = 1.6; ctx.strokeStyle = c; ctx.stroke();
         } else {
           ctx.fillStyle = c; ctx.fill();
-          if (n.toggle) {
-            // + when closed, minus when open
-            var rr = (n === hoverNode ? r * 1.25 : r) * 0.5;
-            ctx.shadowBlur = 0;
-            ctx.strokeStyle = isDark() ? '#121614' : '#ffffff';
-            ctx.lineWidth = r * 0.28; ctx.lineCap = 'round';
-            ctx.beginPath();
-            ctx.moveTo(n.x - rr, n.y); ctx.lineTo(n.x + rr, n.y);
-            if (!n.open) { ctx.moveTo(n.x, n.y - rr); ctx.lineTo(n.x, n.y + rr); }
-            ctx.stroke();
-          }
+          if (n.toggle) drawToggleMark(n, ctx, r, c);
         }
         ctx.restore();
       }
@@ -517,6 +529,27 @@
     function interacted() { touched = true; }
     container.addEventListener('pointerdown', interacted);
     var refitWhenSettled = null;
+    // Shortly after load, folded nodes give off three soft pulses so first-time
+    // visitors notice them (skipped when the visitor prefers reduced motion).
+    if (!reduceMotion.matches) {
+      var pulseStart = performance.now() + 900, PULSES = 3, PERIOD = 1500;
+      g.autoPauseRedraw(false);
+      g.onRenderFramePost(function (ctx, scale) {
+        var t = performance.now() - pulseStart;
+        if (t < 0) return;
+        if (t > PULSES * PERIOD) { g.onRenderFramePost(null); g.autoPauseRedraw(true); return; }
+        var phase = (t % PERIOD) / PERIOD;
+        nodes.forEach(function (n) {
+          if (!n.toggle || n.open) return;
+          ctx.save();
+          ctx.globalAlpha = 0.55 * (1 - phase);
+          ctx.strokeStyle = colorOf(n, pal()); ctx.lineWidth = 2 / scale;
+          ctx.beginPath(); ctx.arc(n.x, n.y, RADIUS[n.kind] * (1.2 + 2.2 * phase), 0, Math.PI * 2); ctx.stroke();
+          ctx.restore();
+        });
+      });
+    }
+
     g.onEngineStop(function () {
       if (!fitted) { fitted = true; if (!touched) fit(reduceMotion.matches ? 0 : 400); }
       // After a group opens or closes, the layout keeps relaxing for a moment.
