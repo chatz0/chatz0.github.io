@@ -253,12 +253,13 @@
       link('s:publications', 'x:' + p[0], 50);
     });
 
-    [['LinkedIn', 'https://www.linkedin.com/in/dimhatzo/', 'LinkedIn'],
-     ['Email', 'mailto:dimitris.chatzopoulos@ucd.ie', 'dimitris.chatzopoulos@ucd.ie']
-    ].forEach(function (p) {
-      node('x:' + p[0], p[0], 'profile', { href: p[1], tip: 'Open ' + p[2] });
-      link(p[0] === 'Email' ? 's:contact' : 'me', 'x:' + p[0], p[0] === 'Email' ? 40 : 95);
-    });
+    node('x:LinkedIn', 'LinkedIn', 'profile', { href: 'https://www.linkedin.com/in/dimhatzo/', tip: 'Open LinkedIn' });
+    link('me', 'x:LinkedIn', 95);
+
+    // Email shows the address pattern, like the Contact section, and scrolls there:
+    // the full address isn't written anywhere in this script.
+    node('x:Email', 'Email', 'profile', { target: '#contact', tip: 'Email: first_name.last_name@ucd.ie' });
+    link('s:contact', 'x:Email', 40);
 
     // The research group (DAIS Lab): a cloud linked only to the centre photo; opens its own page.
     node('s:group', 'DAIS Lab', 'section', { cloud: true, page: 'group.html', tip: 'DAIS Lab: meet the research group' });
