@@ -494,12 +494,19 @@
 
     // Fold-out nodes: while folded, small "satellite" dots orbit them, one per
     // hidden child (up to four); once open, a faint ring says they fold back.
+    var heldNode = null;                // the node under the pointer, if any
+    var LIVE = !reduceMotion.matches;   // continuous motion: orbits, drifting nodes, flowing edges
+
     function drawToggleMark(n, ctx, r, c) {
       ctx.shadowBlur = 0;
       if (!n.open) {
         var k = Math.min(n.childCount || 1, 4);
-        var dist = r * 1.75, dot = Math.max(r * 0.22, 1.2), step = 0.5;
-        var base = -Math.PI / 4 - (k - 1) * step / 2;           // a tight arc at the top right
+        var dist = r * 1.75, dot = Math.max(r * 0.22, 1.2);
+        // Live: the dots orbit the node, evenly spaced, each node at its own pace
+        // and direction. Still (reduced motion): a tight arc at the top right.
+        var step = LIVE ? Math.PI * 2 / k : 0.5;
+        if (n.orbit == null) n.orbit = (0.55 + Math.random() * 0.35) * (Math.random() < 0.5 ? -1 : 1);
+        var base = LIVE ? performance.now() / 1000 * n.orbit + (n.ph || 0) : -Math.PI / 4 - (k - 1) * step / 2;
         ctx.fillStyle = c;
         for (var i = 0; i < k; i++) {
           var a = base + i * step;
@@ -511,6 +518,11 @@
       }
     }
 
+    function rgba(hex, a) {
+      var v = parseInt(hex.slice(1), 16);
+      return 'rgba(' + (v >> 16) + ',' + ((v >> 8) & 255) + ',' + (v & 255) + ',' + a + ')';
+    }
+
     function drawNode(n, ctx, scale) {
       var p = pal();
       var r = RADIUS[n.kind];
@@ -518,6 +530,14 @@
       ctx.globalAlpha = dim ? 0.18 : 1;
 
       if (n.kind === 'me') {
+        if (LIVE) {   // a slow breathing halo
+          var breath = (Math.sin(performance.now() / 1000 * 1.1) + 1) / 2;
+          ctx.save();
+          ctx.globalAlpha *= 0.10 + 0.14 * (1 - breath);
+          ctx.strokeStyle = p.accent; ctx.lineWidth = 2.5;
+          ctx.beginPath(); ctx.arc(n.x, n.y, r + 6 + breath * 6, 0, Math.PI * 2); ctx.stroke();
+          ctx.restore();
+        }
         ctx.save();
         if (isDark()) { ctx.shadowColor = p.accent; ctx.shadowBlur = 18; }
         ctx.beginPath(); ctx.arc(n.x, n.y, r + 2.5, 0, Math.PI * 2);
@@ -630,16 +650,24 @@
       .nodeLabel(function (n) { return escapeHtml(n.tip || n.label); })
       .nodeCanvasObject(drawNode)
       .nodePointerAreaPaint(paintArea)
+      // Edges curve gently and take the colour of the branch they lead to; small
+      // dots of light flow outward along them (faster and brighter on hover).
+      .linkCurvature(0.14)
       .linkColor(function (l) {
         var p = pal();
         if (hlLinks.has(l)) return p.accent;
-        return 'rgba(' + p.link + ',' + (hoverNode ? 0.05 : 0.16) + ')';
+        var tint = typeof l.target === 'object' ? colorOf(l.target, p) : p.accent;
+        return rgba(tint, hoverNode ? 0.07 : 0.3);
       })
       .linkWidth(function (l) { return hlLinks.has(l) ? 1.8 : 1; })
-      .linkDirectionalParticles(function (l) { return hlLinks.has(l) && !reduceMotion.matches ? 2 : 0; })
-      .linkDirectionalParticleWidth(3)
-      .linkDirectionalParticleSpeed(0.008)
-      .linkDirectionalParticleColor(function () { return pal().accent; })
+      .linkDirectionalParticles(function (l) { return !LIVE ? 0 : hlLinks.has(l) ? 3 : 1; })
+      .linkDirectionalParticleWidth(function (l) { return hlLinks.has(l) ? 3 : 1.8; })
+      .linkDirectionalParticleSpeed(function (l) { return hlLinks.has(l) ? 0.009 : 0.0028; })
+      .linkDirectionalParticleColor(function (l) {
+        var p = pal();
+        if (hlLinks.has(l)) return p.accent;
+        return rgba(typeof l.target === 'object' ? colorOf(l.target, p) : p.accent, hoverNode ? 0.15 : 0.75);
+      })
       .onNodeHover(function (n) { setHover(n); })
       .onNodeClick(function (n) { openNode(n); })
       .onBackgroundClick(function () { setHover(null); })
@@ -702,7 +730,7 @@
       g.onRenderFramePost(function (ctx, scale) {
         var t = performance.now() - pulseStart;
         if (t < 0) return;
-        if (t > PULSES * PERIOD) { g.onRenderFramePost(null); g.autoPauseRedraw(true); return; }
+        if (t > PULSES * PERIOD) { g.onRenderFramePost(null); return; }
         var phase = (t % PERIOD) / PERIOD;
         nodes.forEach(function (n) {
           if (!n.toggle || n.open) return;
@@ -715,7 +743,7 @@
       });
     }
 
-    g.onEngineStop(function () {
+    function settled() {
       if (!fitted) { fitted = true; if (!touched) fit(reduceMotion.matches ? 0 : 400); }
       // After a group opens or closes, the layout keeps relaxing for a moment.
       // Once it's at rest, re-fit if needed: always on phones, where it's tight.
@@ -723,7 +751,55 @@
         refitWhenSettled = false;
         if (container.clientWidth < 640 || !allInView(nodes)) fit(400);
       }
-    });
+    }
+    g.onEngineStop(settled);
+
+    // Live: the layout never freezes. Once every node has come to rest, each
+    // one's resting spot becomes its "home" and it drifts gently around it. Any
+    // re-layout (a group opening or closing, a reset) starts a new settling
+    // phase: no drifting until everything has been still for a moment again.
+    // Stillness is judged in real time, because the library fast-forwards the
+    // layout in one burst when the graph changes.
+    var settling = true;
+    var settlingSince = 0;
+    function resettle() { settling = true; settlingSince = performance.now(); }
+    if (LIVE) {
+      var lastAlpha = 0, stillSince = 0;
+      g.cooldownTime(Infinity).cooldownTicks(Infinity).d3AlphaMin(0).autoPauseRedraw(false);
+      g.d3Force('float', function (alpha) {
+        if (alpha > lastAlpha + 0.01 && !settling) resettle();          // reheated
+        lastAlpha = alpha;
+        var now = performance.now(), t = now / 1000;
+        if (settling) {
+          var fastest = 0;
+          nodes.forEach(function (n) {
+            n.home = null; n.holdX = null;
+            if (n.fx == null) fastest = Math.max(fastest, Math.abs(n.vx || 0), Math.abs(n.vy || 0));
+          });
+          if (fastest > 0.03 || !stillSince) stillSince = now;
+          // ...or 4 seconds have passed: labels nudging each other can keep a little motion going
+          if (now - stillSince < 250 && now - settlingSince < 4000) return;
+          settling = false; stillSince = 0;
+          settled();
+        }
+        nodes.forEach(function (n) {
+          if (n.ph == null) { n.ph = Math.random() * Math.PI * 2; n.sp = 0.45 + Math.random() * 0.4; }
+          var under = n === hoverNode || n === heldNode;                 // under the pointer
+          if (!under) n.holdX = null;
+          if (n.fx != null) { n.home = null; return; }                   // pinned
+          if (!n.home) n.home = { x: n.x, y: n.y };
+          if (under) {                                                   // hold still under the pointer
+            if (n.holdX == null) { n.holdX = n.x; n.holdY = n.y; }
+            n.x = n.holdX; n.y = n.holdY; n.vx = 0; n.vy = 0;
+            return;
+          }
+          var amp = n.kind === 'section' ? 3 : 4.5;
+          var tx = n.home.x + Math.cos(t * n.sp + n.ph) * amp;
+          var ty = n.home.y + Math.sin(t * n.sp * 1.3 + n.ph * 2) * amp;
+          n.vx += (tx - n.x) * 0.04; n.vy += (ty - n.y) * 0.04;
+        });
+      });
+    }
     // Fit early too, so the first frames already look composed.
     setTimeout(function () { if (!fitted) fit(0); }, 350);
 
@@ -826,6 +902,7 @@
     }
 
     var drag = null;
+    container.addEventListener('pointerleave', function () { heldNode = null; });
     var canvasEl = function () { return container.querySelector('canvas'); };
 
     container.addEventListener('pointerdown', function (e) {
@@ -852,7 +929,8 @@
       if (!drag) {
         if (e.pointerType === 'mouse') {
           var c = canvasEl();
-          if (c) c.style.cursor = nodeAt(e.clientX, e.clientY) ? 'grab' : '';
+          heldNode = nodeAt(e.clientX, e.clientY);     // freezes under the pointer (see the float force)
+          if (c) c.style.cursor = heldNode ? 'grab' : '';
         }
         return;
       }
@@ -932,6 +1010,7 @@
       held.forEach(function (n) { n.fx = n.x; n.fy = n.y; });
       var centre = g.d3Force('center');
       g.d3Force('center', null);
+      resettle();
       g.graphData({ nodes: nodes, links: links });
       // Do the new nodes also link to nodes outside the group (themes to papers)?
       // Then let the whole graph re-settle afterwards, so those links can untangle.
@@ -943,6 +1022,7 @@
       setTimeout(function () {
         held.forEach(function (n) { if (!n.pinned) { n.fx = undefined; n.fy = undefined; } });
         g.d3Force('center', centre);
+        resettle();
         if (crossLinks) g.d3ReheatSimulation();
         else if (!allInView(nodes)) fit(500);
         refitWhenSettled = true;
@@ -965,7 +1045,7 @@
         if (n.pinned) { n.fx = undefined; n.fy = undefined; n.pinned = false; any = true; }
       });
       if (me.fx !== 0 || me.fy !== 0) { me.fx = 0; me.fy = 0; any = true; }
-      if (any) { fitted = false; touched = false; g.d3ReheatSimulation(); }
+      if (any) { fitted = false; touched = false; resettle(); g.d3ReheatSimulation(); }
       else fit(500);
     }
 
