@@ -1,6 +1,7 @@
 {
   "$schema": "./_schema.json",
   "title": "Workflow Optimization for Parallel Split Learning",
+  "short_title": "Parallel split learning",
   "authors": [
     "Joana Tirana",
     "Dimitra Tsigkari",

@@ -14,7 +14,7 @@
   <meta name="theme-color" content="#f7f6f2" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#121614" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f6b5c'/%3E%3Ctext x='16' y='22' font-family='Courier New,monospace' font-weight='bold' font-size='17' fill='%23fff' text-anchor='middle'%3EDC%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css?v=25">
+  <link rel="stylesheet" href="styles.css?v=27">
   <script>
     // Apply a saved theme before first paint to avoid a flash.
     document.documentElement.classList.add('js');
@@ -154,68 +154,9 @@
           <h2 id="pubs-h">Selected publications</h2>
           <p class="section-aside"><a href="publications.html">Full list</a> &middot; <a href="https://scholar.google.com/citations?user=vXz1bl4AAAAJ&amp;hl=en" rel="noopener">Google&nbsp;Scholar</a> &middot; <a href="https://dblp.org/pid/135/6249.html" rel="noopener">DBLP</a></p>
         </div>
-        <ol class="pubs">
-          <li class="pub" data-themes="learning" data-short="Human feedback in AI alignment">
-            <span class="pub-year">2025</span>
-            <div>
-              <p class="pub-title">Maximizing the Efficiency of Human Feedback in AI Alignment: A Comparative Analysis</p>
-              <p class="pub-authors">Andreas Chouliaras, <b>Dimitris Chatzopoulos</b></p>
-              <p class="pub-venue">arXiv preprint</p>
-            </div>
-          </li>
-          <li class="pub" data-themes="ledgers" data-short="Cross-ledger consistency">
-            <span class="pub-year">2024</span>
-            <div>
-              <p class="pub-title">Cross Ledger Transaction Consistency for Financial Auditing</p>
-              <p class="pub-authors">Vlasis Koutsos, Xiangan Tian, Dimitrios Papadopoulos, <b>Dimitris Chatzopoulos</b></p>
-              <p class="pub-venue">AFT 2024, Advances in Financial Technologies (LIPIcs 316)</p>
-              <p class="pub-links"><a href="https://doi.org/10.4230/LIPIcs.AFT.2024.4" rel="noopener">DOI</a><a href="https://eprint.iacr.org/2024/1155" rel="noopener">ePrint</a></p>
-            </div>
-          </li>
-          <li class="pub" data-themes="learning" data-short="Parallel split learning">
-            <span class="pub-year">2024</span>
-            <div>
-              <p class="pub-title">Workflow Optimization for Parallel Split Learning</p>
-              <p class="pub-authors">Joana Tirana, Dimitra Tsigkari, George Iosifidis, <b>Dimitris Chatzopoulos</b></p>
-              <p class="pub-venue">IEEE INFOCOM 2024</p>
-              <p class="pub-links"><a href="https://arxiv.org/abs/2402.10092" rel="noopener">arXiv</a></p>
-            </div>
-          </li>
-          <li class="pub" data-themes="learning" data-short="IPLS">
-            <span class="pub-year">2021</span>
-            <div>
-              <p class="pub-title">IPLS: A Framework for Decentralized Federated Learning</p>
-              <p class="pub-authors">Christodoulos Pappas, <b>Dimitris Chatzopoulos</b>, Spyros Lalis, Manolis Vavalis</p>
-              <p class="pub-venue">IFIP Networking 2021</p>
-              <p class="pub-links"><a href="https://doi.org/10.23919/IFIPNetworking52078.2021.9472790" rel="noopener">DOI</a><a href="https://arxiv.org/abs/2101.01901" rel="noopener">arXiv</a></p>
-            </div>
-          </li>
-          <li class="pub" data-themes="ledgers mobile" data-short="Mneme">
-            <span class="pub-year">2020</span>
-            <div>
-              <p class="pub-title">Mneme: A Mobile Distributed Ledger</p>
-              <p class="pub-authors"><b>Dimitris Chatzopoulos</b>, Sujit Gujar, Boi Faltings, Pan Hui</p>
-              <p class="pub-venue">IEEE INFOCOM 2020</p>
-              <p class="pub-links"><a href="https://doi.org/10.1109/INFOCOM41043.2020.9155497" rel="noopener">DOI</a><a href="https://arxiv.org/abs/2101.04825" rel="noopener">Extended version</a></p>
-            </div>
-          </li>
-          <li class="pub" data-themes="mobile" data-short="NFC offloading">
-            <span class="pub-year">2020</span>
-            <div>
-              <p class="pub-title">Offloading Computations to Mobile Devices and Cloudlets via an Upgraded NFC Communication Protocol</p>
-              <p class="pub-authors"><b>Dimitris Chatzopoulos</b>, Carlos Bermejo, Sokol Kosta, Pan Hui</p>
-              <p class="pub-venue">IEEE Transactions on Mobile Computing 19(3)</p>
-            </div>
-          </li>
-          <li class="pub" data-themes="mobile" data-short="Mobile AR survey">
-            <span class="pub-year">2017</span>
-            <div>
-              <p class="pub-title">Mobile Augmented Reality Survey: From Where We Are to Where We Go</p>
-              <p class="pub-authors"><b>Dimitris Chatzopoulos</b>, Carlos Bermejo, Zhanpeng Huang, Pan Hui</p>
-              <p class="pub-venue">IEEE Access</p>
-            </div>
-          </li>
-        </ol>
+        <!-- Built by main.js from the files in papers/ marked "selected": true. See papers/README.md. -->
+        <ol class="pubs" id="selected-pubs"></ol>
+        <p class="members-message pubs-message" id="pubs-message" hidden></p>
       </div>
     </section>
 
@@ -321,7 +262,7 @@
     </div>
   </footer>
 
-  <script src="vendor/force-graph.min.js?v=25" defer></script>
-  <script src="main.js?v=25" defer></script>
+  <script src="vendor/force-graph.min.js?v=27" defer></script>
+  <script src="main.js?v=27" defer></script>
 </body>
 </html>

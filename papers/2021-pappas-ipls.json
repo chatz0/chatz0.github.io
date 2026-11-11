@@ -1,6 +1,7 @@
 {
   "$schema": "./_schema.json",
   "title": "IPLS: A Framework for Decentralized Federated Learning",
+  "short_title": "IPLS",
   "authors": [
     "Christodoulos Pappas",
     "Dimitris Chatzopoulos",

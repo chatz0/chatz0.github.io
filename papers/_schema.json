@@ -3,39 +3,116 @@
   "title": "Publication",
   "description": "One paper. One file per paper, named year-firstauthor-firstword.json, e.g. 2024-tirana-workflow.json.",
   "type": "object",
-  "required": ["title", "authors", "year", "type"],
+  "required": [
+    "title",
+    "authors",
+    "year",
+    "type"
+  ],
   "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string" },
-    "_how_to_fill": { "type": "string", "description": "Instructions for whoever fills in the file. Ignored by the website." },
-
-    "title": { "type": "string", "minLength": 1, "description": "Exactly as published, including its original spelling." },
+    "$schema": {
+      "type": "string"
+    },
+    "_how_to_fill": {
+      "type": "string",
+      "description": "Instructions for whoever fills in the file. Ignored by the website."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Exactly as published, including its original spelling."
+    },
+    "short_title": {
+      "type": "string",
+      "maxLength": 40,
+      "description": "Optional short label for the homepage graph, e.g. \"Mneme\". Defaults to the title before any colon."
+    },
     "authors": {
-      "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 },
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
       "description": "In publication order, full names. Names matching a lab member's file link to their page automatically."
     },
-    "year": { "type": "integer", "minimum": 1990, "maximum": 2100 },
+    "year": {
+      "type": "integer",
+      "minimum": 1990,
+      "maximum": 2100
+    },
     "type": {
       "type": "string",
-      "enum": ["conference", "journal", "workshop", "preprint", "book chapter", "thesis", "other"]
+      "enum": [
+        "conference",
+        "journal",
+        "workshop",
+        "preprint",
+        "book chapter",
+        "thesis",
+        "other"
+      ]
     },
-    "venue": { "type": "string", "description": "Full venue, e.g. \"IEEE INFOCOM 2024\" or \"IEEE Transactions on Mobile Computing 19(3)\"." },
-
-    "doi": { "type": "string", "description": "Just the DOI, e.g. \"10.4230/LIPIcs.AFT.2024.4\" (no https://doi.org/)." },
-    "url": { "type": "string", "description": "Publisher page, if there's no DOI." },
-    "arxiv": { "type": "string", "description": "arXiv id, e.g. \"2402.10092\"." },
-    "eprint": { "type": "string", "description": "Other preprint link, e.g. an IACR ePrint URL." },
-    "pdf": { "type": "string", "description": "Link to a freely available PDF." },
-    "code": { "type": "string", "description": "Link to code or artefacts." },
-    "slides": { "type": "string" },
-
-    "abstract": { "type": "string" },
-    "note": { "type": "string", "description": "Short note shown with the paper, e.g. \"Best Paper Award\" or \"Extended version of the INFOCOM 2020 paper\"." },
+    "venue": {
+      "type": "string",
+      "description": "Full venue, e.g. \"IEEE INFOCOM 2024\" or \"IEEE Transactions on Mobile Computing 19(3)\"."
+    },
+    "doi": {
+      "type": "string",
+      "description": "Just the DOI, e.g. \"10.4230/LIPIcs.AFT.2024.4\" (no https://doi.org/)."
+    },
+    "url": {
+      "type": "string",
+      "description": "Publisher page, if there's no DOI."
+    },
+    "arxiv": {
+      "type": "string",
+      "description": "arXiv id, e.g. \"2402.10092\"."
+    },
+    "arxiv_label": {
+      "type": "string",
+      "maxLength": 30,
+      "description": "Optional label for the arXiv button, e.g. \"Extended version\". Defaults to \"arXiv\"."
+    },
+    "eprint": {
+      "type": "string",
+      "description": "Other preprint link, e.g. an IACR ePrint URL."
+    },
+    "pdf": {
+      "type": "string",
+      "description": "Link to a freely available PDF."
+    },
+    "code": {
+      "type": "string",
+      "description": "Link to code or artefacts."
+    },
+    "slides": {
+      "type": "string"
+    },
+    "abstract": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string",
+      "description": "Short note shown with the paper, e.g. \"Best Paper Award\" or \"Extended version of the INFOCOM 2020 paper\"."
+    },
     "themes": {
       "type": "array",
-      "items": { "type": "string", "enum": ["learning", "ledgers", "incentives", "mobile"] },
+      "items": {
+        "type": "string",
+        "enum": [
+          "learning",
+          "ledgers",
+          "incentives",
+          "mobile"
+        ]
+      },
       "description": "Research themes on the homepage this paper belongs to."
     },
-    "selected": { "type": "boolean", "description": "true for papers in the homepage's Selected publications." }
+    "selected": {
+      "type": "boolean",
+      "description": "true for papers in the homepage's Selected publications."
+    }
   }
 }

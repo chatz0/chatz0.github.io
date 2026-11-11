@@ -1,6 +1,7 @@
 {
   "$schema": "./_schema.json",
   "title": "Offloading Computations to Mobile Devices and Cloudlets via an Upgraded NFC Communication Protocol",
+  "short_title": "NFC offloading",
   "authors": [
     "Dimitris Chatzopoulos",
     "Carlos Bermejo",

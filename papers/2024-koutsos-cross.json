@@ -1,6 +1,7 @@
 {
   "$schema": "./_schema.json",
   "title": "Cross Ledger Transaction Consistency for Financial Auditing",
+  "short_title": "Cross-ledger consistency",
   "authors": [
     "Vlasis Koutsos",
     "Xiangan Tian",

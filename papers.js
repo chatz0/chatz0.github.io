@@ -84,7 +84,7 @@
 
     var chips = el('p', 'pub-links');
     if (/^10\.\S+$/.test(str(p.doi))) chips.appendChild(link('https://doi.org/' + str(p.doi), 'DOI'));
-    if (/^[\w.\/-]+$/.test(str(p.arxiv))) chips.appendChild(link('https://arxiv.org/abs/' + str(p.arxiv), 'arXiv'));
+    if (/^[\w.\/-]+$/.test(str(p.arxiv))) chips.appendChild(link('https://arxiv.org/abs/' + str(p.arxiv), str(p.arxiv_label) || 'arXiv'));
     [['eprint', 'ePrint'], ['pdf', 'PDF'], ['code', 'Code'], ['slides', 'Slides']].forEach(function (k) {
       if (isWebUrl(str(p[k[0]]))) chips.appendChild(link(str(p[k[0]]), k[1]));
     });

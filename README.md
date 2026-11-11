@@ -7,7 +7,7 @@ Open `index.html` in a browser to preview it locally.
 
 | File | What it holds |
 | --- | --- |
-| `index.html` | All page content: bio, research themes, publications, background, teaching, contact |
+| `index.html` | Homepage content: bio, research themes, background, teaching, contact (the selected papers come from `papers/`) |
 | `styles.css` | Layout, light/dark colour tokens (top of the file) |
 | `main.js` | Theme toggle, active-section highlighting, the interactive graph in the hero |
 | `vendor/force-graph.min.js` | [force-graph](https://github.com/vasturiano/force-graph) 1.50.1 (MIT), the library behind the graph; vendored so the site needs no build or CDN. One local patch: the hover-canvas throttle is 40ms instead of 800ms, so nodes stay grabbable while moving |
@@ -23,9 +23,7 @@ Open `index.html` in a browser to preview it locally.
 
 ## Editing
 
-- **Add a publication:** copy one `<li class="pub" …>…</li>` block in `index.html` and edit it. Your name goes in `<b>…</b>`.
-  The graph picks it up automatically: `data-short` is its label in the graph and `data-themes` lists the research themes it links to
-  (`learning`, `ledgers`, `incentives`, `mobile`, matching the `data-theme-id` of the cards in the Research section).
+- **Add a publication:** add a file to `papers/` (see `papers/README.md`); with `"selected": true` it also appears in the homepage's *Selected publications* and its graph, linked to the research themes in its `themes` field. The homepage's paper list needs a local server to preview (`python3 -m http.server`).
 - **Add a lab member:** add their JSON file to `members/` and list it in `members/index.json` (details in `members/README.md`). The DAIS Lab page builds its cards from these files; photos go in `assets/people/`. Each member automatically gets their own page, linked from their card. To preview the lab pages locally, run `python3 -m http.server` and open http://localhost:8000/group.html (opened straight from disk, they can't load the files).
 - **Add papers to the full list:** see `papers/README.md`; `papers/import_bibtex.py` turns a BibTeX export from DBLP or Scholar into paper files.
 - **After changing CSS or JS:** bump the `?v=` number on the `styles.css`, `main.js`, `members.js`, `papers.js` and `vendor/…` links in `index.html`, `group.html`, `member.html` and `publications.html`, so browsers don't keep a cached old copy (GitHub Pages caches for 10 minutes).

@@ -1,7 +1,8 @@
 # Publications
 
 One JSON file per paper: `year-firstauthor-firstword.json`, e.g. `2024-tirana-workflow.json`.
-The full publication list (`publications.html`) is built from these files.
+The full publication list (`publications.html`) and the homepage's *Selected publications*
+(and the papers in its graph) are built from these files.
 
 | File | Purpose |
 | --- | --- |
@@ -31,6 +32,7 @@ Then run `python3 papers/check.py`, fix anything it reports, commit and push.
 | Field | Notes |
 | --- | --- |
 | `title` | Exactly as published, including its original spelling. **Required.** |
+| `short_title` | Optional short label for the homepage graph, e.g. `Mneme`. Defaults to the title before any colon. |
 | `authors` | In order, full names. **Required.** Names that match a lab member in `members/` link to their page. |
 | `year` | A number, e.g. `2024`. **Required.** |
 | `type` | `conference`, `journal`, `workshop`, `preprint`, `book chapter`, `thesis` or `other`. **Required.** The list page can filter by it. |
@@ -38,16 +40,14 @@ Then run `python3 papers/check.py`, fix anything it reports, commit and push.
 | `doi` | Just the DOI, e.g. `10.4230/LIPIcs.AFT.2024.4`. The title links to it. |
 | `url` | Publisher page, used for the title link when there's no DOI. |
 | `arxiv` | arXiv id, e.g. `2402.10092`. |
+| `arxiv_label` | Optional label for the arXiv button, e.g. `Extended version`. |
 | `eprint`, `pdf`, `code`, `slides` | Full links, shown as buttons. |
 | `abstract` | Shown behind an "Abstract" toggle. |
 | `note` | A short line under the paper, e.g. an award. |
-| `themes` | Any of `learning`, `ledgers`, `incentives`, `mobile` (the homepage's research themes). |
-| `selected` | `true` for the papers in the homepage's *Selected publications*. |
+| `themes` | Any of `learning`, `ledgers`, `incentives`, `mobile`: in the homepage graph, the paper hangs off these research themes. |
+| `selected` | `true` to show the paper in the homepage's *Selected publications* (and its graph), newest first. |
 
-## Note
+## Previewing
 
-The homepage's *Selected publications* list and its graph are still written in `index.html`, so the
-homepage keeps working when opened straight from disk. When you add a paper to that list, set
-`"selected": true` in its file too.
-
-To preview the full list locally: `python3 -m http.server`, then open http://localhost:8000/publications.html.
+Browsers won't load these files for a page opened straight from disk, so preview with a local server:
+`python3 -m http.server`, then open http://localhost:8000/ (homepage) or http://localhost:8000/publications.html.

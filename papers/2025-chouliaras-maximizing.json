@@ -1,6 +1,7 @@
 {
   "$schema": "./_schema.json",
   "title": "Maximizing the Efficiency of Human Feedback in AI Alignment: A Comparative Analysis",
+  "short_title": "Human feedback in AI alignment",
   "authors": [
     "Andreas Chouliaras",
     "Dimitris Chatzopoulos"

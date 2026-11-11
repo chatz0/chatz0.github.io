@@ -1,6 +1,7 @@
 {
   "$schema": "./_schema.json",
   "title": "Mneme: A Mobile Distributed Ledger",
+  "short_title": "Mneme",
   "authors": [
     "Dimitris Chatzopoulos",
     "Sujit Gujar",
@@ -12,6 +13,7 @@
   "venue": "IEEE INFOCOM 2020",
   "doi": "10.1109/INFOCOM41043.2020.9155497",
   "arxiv": "2101.04825",
+  "arxiv_label": "Extended version",
   "note": "The arXiv version is an extended paper, Towards Mobile Distributed Ledgers.",
   "themes": [
     "ledgers",

@@ -60,10 +60,84 @@
     el.classList.add('flash');
   }
 
+  /* ---------- Selected publications (homepage) ----------
+     Built from the files in papers/ marked "selected": true, newest first.
+     The graph starts once this list is in place, because it reads its paper
+     nodes from it. */
+  function loadSelectedPapers() {
+    var list = document.getElementById('selected-pubs');
+    if (!list) return Promise.resolve();
+    var note = document.getElementById('pubs-message');
+    function getJSON(url) {
+      return fetch(url, { cache: 'no-cache' }).then(function (r) {
+        if (!r.ok) throw new Error(url + ': HTTP ' + r.status);
+        return r.json();
+      });
+    }
+    function el(tag, className, text) {
+      var e = document.createElement(tag);
+      if (className) e.className = className;
+      if (text != null && text !== '') e.textContent = text;
+      return e;
+    }
+    function str(v) { return typeof v === 'string' ? v.trim() : ''; }
+    function chip(href, text) {
+      var a = el('a', '', text); a.href = href; a.rel = 'noopener'; return a;
+    }
+    function entry(p) {
+      var li = el('li', 'pub');
+      var themes = (Array.isArray(p.themes) ? p.themes : []).map(str).filter(function (t) { return /^[a-z]+$/.test(t); });
+      li.setAttribute('data-themes', themes.join(' '));
+      li.setAttribute('data-short', str(p.short_title) || str(p.title).split(':')[0]);
+      li.appendChild(el('span', 'pub-year', String(p.year)));
+      var body = el('div');
+      body.appendChild(el('p', 'pub-title', str(p.title)));
+      var authors = el('p', 'pub-authors');
+      (Array.isArray(p.authors) ? p.authors : []).map(str).filter(Boolean).forEach(function (name, i) {
+        if (i) authors.appendChild(document.createTextNode(', '));
+        authors.appendChild(name === 'Dimitris Chatzopoulos' ? el('b', '', name) : document.createTextNode(name));
+      });
+      body.appendChild(authors);
+      if (str(p.venue)) body.appendChild(el('p', 'pub-venue', str(p.venue)));
+      var links = el('p', 'pub-links');
+      if (/^10\.\S+$/.test(str(p.doi))) links.appendChild(chip('https://doi.org/' + str(p.doi), 'DOI'));
+      if (/^[\w.\/-]+$/.test(str(p.arxiv))) links.appendChild(chip('https://arxiv.org/abs/' + str(p.arxiv), str(p.arxiv_label) || 'arXiv'));
+      [['eprint', 'ePrint'], ['pdf', 'PDF'], ['code', 'Code'], ['slides', 'Slides']].forEach(function (k) {
+        var u = str(p[k[0]]);
+        if (/^https?:\/\/\S+$/i.test(u)) links.appendChild(chip(u, k[1]));
+      });
+      if (links.childNodes.length) body.appendChild(links);
+      li.appendChild(body);
+      return li;
+    }
+    return getJSON('papers/index.json')
+      .then(function (files) {
+        return Promise.all(files.map(function (f) {
+          return getJSON('papers/' + encodeURIComponent(f)).catch(function (e) { console.warn(e); return null; });
+        }));
+      })
+      .then(function (papers) {
+        papers.filter(function (p) { return p && p.selected === true && str(p.title) && p.year; })
+          .sort(function (a, b) { return b.year - a.year || str(a.title).localeCompare(str(b.title)); })
+          .forEach(function (p) { list.appendChild(entry(p)); });
+      })
+      .catch(function (err) {
+        console.warn(err);
+        note.textContent = location.protocol === 'file:'
+          ? 'The paper list can\u2019t load when this page is opened straight from disk. To preview it, run ' +
+            '"python3 -m http.server" in the site folder and open http://localhost:8000/.'
+          : 'The paper list couldn\u2019t be loaded right now. See the full list on DBLP or Google Scholar.';
+        note.hidden = false;
+      });
+  }
+
   /* ---------- Interactive graph ----------
-     Built from the page itself: research themes and publications are read
-     from the DOM, so adding a paper to the list also adds it to the graph. */
-  var graph = (function () {
+     Built from the page itself: research themes, the selected papers and the
+     courses are read from the DOM, so changing those lists changes the graph. */
+  var graph = { redraw: function () {} };
+  loadSelectedPapers().then(startGraph, startGraph);
+
+  function startGraph() { graph = (function () {
     var panel = document.querySelector('.graph-panel');
     var card = document.querySelector('.intro-card');
     var container = document.getElementById('graph');
@@ -697,5 +771,5 @@
     }
 
     return { redraw: redraw };
-  })();
+  })(); }
 })();
